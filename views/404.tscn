@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://cio3senb4sfjx"]
+
+[ext_resource type="Script" uid="uid://bo4r3mfd53akm" path="res://lib/page.gd" id="1_o2tpr"]
+
+[node name="404" type="Control" unique_id=828176530]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_o2tpr")
+metadata/_custom_type_script = "uid://bo4r3mfd53akm"
+
+[node name="Label" type="Label" parent="." unique_id=1007889762]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+text = "404 not found"

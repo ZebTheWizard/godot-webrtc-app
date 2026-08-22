@@ -1,0 +1,67 @@
+[gd_scene format=3 uid="uid://b5ns387lfc61t"]
+
+[ext_resource type="Script" uid="uid://3ryh43lrsafo" path="res://components/world/control.gd" id="1_0qbq6"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ig7tw"]
+sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+ground_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+
+[sub_resource type="Sky" id="Sky_0xm2m"]
+sky_material = SubResource("ProceduralSkyMaterial_ig7tw")
+
+[sub_resource type="Environment" id="Environment_h2yge"]
+background_mode = 2
+sky = SubResource("Sky_0xm2m")
+ambient_light_source = 3
+tonemap_mode = 2
+
+[node name="World" type="Control" unique_id=229966145]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1316744929]
+environment = SubResource("Environment_h2yge")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=467526591]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 3.904, 5.67, -3.825)
+projection = 1
+current = true
+size = 7.667
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Camera3D" unique_id=497955626]
+transform = Transform3D(-0.50000024, 0.612372, -0.6123727, -0.8660253, -0.3535534, 0.35355377, -3.785518e-08, 0.70710725, 0.7071064, -0.5940001, -3.825004, 94.33)
+directional_shadow_mode = 0
+directional_shadow_split_1 = 0.004
+
+[node name="OmniLight3D" type="OmniLight3D" parent="Camera3D" unique_id=201145777]
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=79130143]
+
+[node name="Control" type="Control" parent="CanvasLayer" unique_id=317606122]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_0qbq6")
+metadata/_custom_type_script = "uid://bo4r3mfd53akm"
+
+[node name="test" type="Button" parent="CanvasLayer/Control" unique_id=247659470]
+layout_mode = 0
+offset_left = 19.0
+offset_top = 8.0
+offset_right = 57.0
+offset_bottom = 39.0
+text = "test"
+
+[node name="home" type="Button" parent="CanvasLayer/Control" unique_id=225106424]
+layout_mode = 0
+offset_left = 1063.0
+offset_top = 9.0
+offset_right = 1116.0
+offset_bottom = 40.0
+text = "home"
+
+[connection signal="pressed" from="CanvasLayer/Control/test" to="CanvasLayer/Control" method="_on_test_pressed"]
+[connection signal="pressed" from="CanvasLayer/Control/home" to="CanvasLayer/Control" method="_on_home_pressed"]

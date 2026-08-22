@@ -1,0 +1,17 @@
+[gd_scene format=3 uid="uid://buabywin58lre"]
+
+[ext_resource type="Script" uid="uid://by7751g3q28ps" path="res://components/ui/button/button.gd" id="1_hmr4o"]
+[ext_resource type="Theme" uid="uid://dpe87e7rn343b" path="res://components/ui/theme_default.tres" id="2_cqwmc"]
+
+[node name="Button" type="Control" unique_id=908021548]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_hmr4o")
+text = "button"
+
+[node name="Button" type="Button" parent="." unique_id=912961132]
+layout_mode = 0
+offset_right = 8.0
+offset_bottom = 8.0
+theme = ExtResource("2_cqwmc")
+text = "button"

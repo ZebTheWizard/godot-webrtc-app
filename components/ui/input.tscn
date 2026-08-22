@@ -1,0 +1,27 @@
+[gd_scene format=3 uid="uid://d12da7p7161k"]
+
+[ext_resource type="Script" uid="uid://d1ldu302nqami" path="res://components/ui/input/input.gd" id="1_c73sw"]
+
+[node name="Input" type="VBoxContainer" unique_id=626841620]
+script = ExtResource("1_c73sw")
+label = "label"
+
+[node name="label" type="Label" parent="." unique_id=1930890557]
+layout_mode = 2
+text = "label"
+
+[node name="error" type="Label" parent="." unique_id=1990959598]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+theme_override_font_sizes/font_size = 9
+
+[node name="input" type="LineEdit" parent="." unique_id=1324188056]
+layout_mode = 2
+
+[node name="action" type="LinkButton" parent="." unique_id=350401258]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 8
+theme_override_font_sizes/font_size = 9
+text = "Reveal"

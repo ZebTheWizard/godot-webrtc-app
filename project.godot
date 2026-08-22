@@ -1,0 +1,40 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[animation]
+
+compatibility/default_parent_skeleton_in_mesh_instance_3d=true
+
+[application]
+
+config/name="Roll Royale"
+run/main_scene="uid://b038pyuu1j84d"
+config/features=PackedStringArray("4.7", "GL Compatibility")
+config/icon="res://icon.svg"
+
+[autoload]
+
+DotEnv="*uid://b3yktbv0hmq2v"
+Client="*uid://bax4w2nw05nny"
+SignalingServer="*uid://dey4k0r64ilkt"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/dotenv/plugin.cfg", "res://addons/godot-sqlite/plugin.cfg")
+
+[gui]
+
+theme/custom="uid://dpe87e7rn343b"
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+lights_and_shadows/directional_shadow/soft_shadow_filter_quality=0

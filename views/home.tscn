@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://bo7fwuv0ubdix"]
+
+[ext_resource type="Script" uid="uid://dw6bv7osv4dnq" path="res://controllers/home.gd" id="1_ydaii"]
+
+[node name="Home" type="Control" unique_id=1224577076]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_ydaii")
+metadata/_custom_type_script = "uid://bo4r3mfd53akm"
+
+[node name="Title" type="Label" parent="." unique_id=85148948]
+layout_mode = 0
+offset_left = 295.0
+offset_top = 40.0
+offset_right = 335.0
+offset_bottom = 63.0
+theme_override_font_sizes/font_size = 48
+text = "Title"
+
+[node name="test" type="Button" parent="." unique_id=1077703858]
+layout_mode = 0
+offset_left = 330.0
+offset_top = 117.0
+offset_right = 368.0
+offset_bottom = 148.0
+text = "test"
+
+[connection signal="pressed" from="test" to="." method="_on_test_pressed"]

@@ -1,0 +1,78 @@
+[gd_scene format=3 uid="uid://bx5jespx80q7w"]
+
+[ext_resource type="Script" uid="uid://etrlj35j3oo1" path="res://controllers/test.gd" id="1_kopn6"]
+[ext_resource type="Script" uid="uid://dey4k0r64ilkt" path="res://signaling_server.gd" id="2_a6e3p"]
+[ext_resource type="Script" uid="uid://bax4w2nw05nny" path="res://client.gd" id="3_ba5vf"]
+
+[node name="Test" type="Control" unique_id=641278891]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_kopn6")
+metadata/_custom_type_script = "uid://bo4r3mfd53akm"
+
+[node name="SignalingServer" type="Control" parent="." unique_id=1942220696]
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("2_a6e3p")
+
+[node name="Client" type="Control" parent="." unique_id=983347338]
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("3_ba5vf")
+
+[node name="start_signaling_server" type="Button" parent="." unique_id=527746711]
+layout_mode = 0
+offset_right = 171.0
+offset_bottom = 31.0
+text = "start signaling server"
+
+[node name="connect_to_signaling_server" type="Button" parent="." unique_id=651755424]
+layout_mode = 0
+offset_left = 7.0
+offset_top = 81.0
+offset_right = 223.0
+offset_bottom = 112.0
+text = "connect to signaling server"
+
+[node name="send_test_to_signaling_server" type="Button" parent="." unique_id=1852928217]
+layout_mode = 0
+offset_left = 59.0
+offset_top = 118.0
+offset_right = 284.0
+offset_bottom = 149.0
+text = "send test to signaling server"
+
+[node name="send_test_to_signaling_client" type="Button" parent="." unique_id=1598241989]
+layout_mode = 0
+offset_left = 33.0
+offset_top = 36.0
+offset_right = 258.0
+offset_bottom = 67.0
+text = "send test to signaling client"
+
+[node name="create_match" type="Button" parent="." unique_id=1708701146]
+layout_mode = 0
+offset_left = 56.0
+offset_top = 154.0
+offset_right = 281.0
+offset_bottom = 185.0
+text = "create match"
+
+[node name="home" type="Button" parent="." unique_id=1184107662]
+layout_mode = 0
+offset_left = 1040.0
+offset_top = 35.0
+offset_right = 1093.0
+offset_bottom = 66.0
+text = "home"
+
+[connection signal="pressed" from="start_signaling_server" to="." method="_on_start_signaling_server_pressed"]
+[connection signal="pressed" from="connect_to_signaling_server" to="." method="_on_connect_to_signaling_server_pressed"]
+[connection signal="pressed" from="send_test_to_signaling_server" to="." method="_on_send_test_to_signaling_server_pressed"]
+[connection signal="pressed" from="send_test_to_signaling_client" to="." method="_on_send_test_to_signaling_client_pressed"]
+[connection signal="pressed" from="create_match" to="." method="_on_create_match_pressed"]
+[connection signal="pressed" from="home" to="." method="_on_home_pressed"]

@@ -1,0 +1,37 @@
+[gd_scene format=3 uid="uid://ccjifehc37ws8"]
+
+[ext_resource type="MeshLibrary" uid="uid://df6qf4w0x0dde" path="res://primatives.tres" id="1_a0n5s"]
+[ext_resource type="Script" uid="uid://bp8yslb7wbt6u" path="res://player.gd" id="2_j0p65"]
+[ext_resource type="PackedScene" uid="uid://b5ns387lfc61t" path="res://components/world.tscn" id="2_xn7up"]
+[ext_resource type="Shader" uid="uid://dwoxx7grtoap4" path="res://player.gdshader" id="3_1rcjg"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_lquwl"]
+render_priority = 0
+shader = ExtResource("3_1rcjg")
+
+[sub_resource type="SphereMesh" id="SphereMesh_ig7tw"]
+material = SubResource("ShaderMaterial_lquwl")
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_0xm2m"]
+
+[node name="default" type="Node3D" unique_id=1237957487]
+
+[node name="World" parent="." unique_id=229966145 instance=ExtResource("2_xn7up")]
+
+[node name="GridMap" type="GridMap" parent="." unique_id=163382696]
+mesh_library = ExtResource("1_a0n5s")
+cell_size = Vector3(1, 1, 1)
+data = {
+"cells": PackedInt32Array(0, 2, 1, 0, 65535, 0, 1, 65535, 0, 2, 65535, 0, 3, 65535, 0, 3, 65534, 0, 2, 65534, 0, 1, 65534, 0, 1, 65533, 0, 0, 65533, 0, 0, 65534, 0, 2, 65533, 0, 3, 65533, 0, 4, 65535, 0, 5, 65535, 0, 6, 65535, 0, 7, 65535, 0, 4, 65534, 0, 5, 65534, 0, 6, 65534, 0, 7, 65534, 0, 7, 65533, 0, 6, 65533, 0, 5, 65533, 0, 4, 65533, 0, 0, 65528, 0, 0, 65529, 0, 0, 65530, 0, 0, 65531, 0, 0, 65532, 0, 1, 65528, 0, 1, 65529, 0, 1, 65530, 0, 1, 65531, 0, 1, 65532, 0, 2, 65528, 0, 2, 65529, 0, 2, 65530, 0, 2, 65531, 0, 2, 65532, 0, 3, 65528, 0, 3, 65529, 0, 3, 65530, 0, 3, 65531, 0, 3, 65532, 0, 4, 65528, 0, 4, 65529, 0, 4, 65530, 0, 4, 65531, 0, 4, 65532, 0, 5, 65528, 0, 5, 65529, 0, 5, 65530, 0, 5, 65531, 0, 5, 65532, 0, 6, 65528, 0, 6, 65529, 0, 6, 65530, 0, 6, 65531, 0, 6, 65532, 0, 7, 65528, 0, 7, 65529, 0, 7, 65530, 0, 7, 65531, 0, 7, 65532, 0, 65536, 65535, 1048578, 65537, 65535, 1441793, 65538, 65535, 1441793, 65539, 65535, 1441793, 65540, 65535, 1441793, 65541, 65535, 1441793, 65542, 65535, 1441793, 65543, 65535, 655362, 65536, 65528, 2, 65536, 65529, 655361, 65536, 65530, 655361, 65536, 65531, 655361, 65536, 65532, 655361, 65536, 65533, 655361, 65536, 65534, 655361, 65537, 65528, 1441793, 65538, 65528, 1441793, 65539, 65528, 1441793, 65540, 65528, 1441793, 65541, 65528, 1441793, 65542, 65528, 1441793, 65543, 65528, 1441794, 65543, 65529, 655361, 65543, 65530, 655361, 65543, 65531, 655361, 65543, 65532, 655361, 65543, 65533, 655361, 65543, 65534, 655361)
+}
+metadata/_editor_floor_ = Vector3(0, 1, 0)
+
+[node name="Player" type="RigidBody3D" parent="." unique_id=1472221657]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.87935, 1.6, -3.154)
+script = ExtResource("2_j0p65")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Player" unique_id=858117040]
+mesh = SubResource("SphereMesh_ig7tw")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Player" unique_id=1418371663]
+shape = SubResource("SphereShape3D_0xm2m")

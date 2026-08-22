@@ -1,0 +1,37 @@
+[gd_scene format=3 uid="uid://lt55ee251riw"]
+
+[ext_resource type="MeshLibrary" uid="uid://df6qf4w0x0dde" path="res://primatives.tres" id="1_3pm3d"]
+[ext_resource type="Script" uid="uid://bp8yslb7wbt6u" path="res://player.gd" id="2_eqhsf"]
+[ext_resource type="Shader" uid="uid://dwoxx7grtoap4" path="res://player.gdshader" id="3_tq8yk"]
+[ext_resource type="PackedScene" uid="uid://b5ns387lfc61t" path="res://components/world.tscn" id="5_tq8yk"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_lquwl"]
+render_priority = 0
+shader = ExtResource("3_tq8yk")
+
+[sub_resource type="SphereMesh" id="SphereMesh_ig7tw"]
+material = SubResource("ShaderMaterial_lquwl")
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_0xm2m"]
+
+[node name="Skinny" type="Node3D" unique_id=1164545831]
+
+[node name="GridMap" type="GridMap" parent="." unique_id=1332775668]
+mesh_library = ExtResource("1_3pm3d")
+cell_size = Vector3(1, 1, 1)
+data = {
+"cells": PackedInt32Array(1, 65533, 0, 2, 65533, 0, 3, 65533, 0, 7, 65533, 0, 6, 65533, 0, 5, 65533, 0, 4, 65533, 0, 0, 65532, 0, 1, 65532, 0, 2, 65532, 0, 3, 65532, 0, 4, 65532, 0, 5, 65532, 0, 6, 65532, 0, 7, 65532, 0, 65536, 65532, 655361, 65536, 65533, 655361, 65543, 65532, 655361, 65543, 65533, 655361, 0, 65533, 0, 65536, 65534, 1048578, 65543, 65534, 655362, 65543, 65531, 1441794, 65536, 65531, 2, 65537, 65531, 1441793, 65538, 65531, 1441793, 65539, 65531, 1441793, 65540, 65531, 1441793, 65541, 65531, 1441793, 65542, 65531, 1441793, 65537, 65534, 1441793, 65538, 65534, 1441793, 65539, 65534, 1441793, 65540, 65534, 1441793, 65541, 65534, 1441793, 65542, 65534, 1441793)
+}
+metadata/_editor_floor_ = Vector3(0, 1, 0)
+
+[node name="Player" type="RigidBody3D" parent="." unique_id=1317763073]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.87935, 1.6, -3.154)
+script = ExtResource("2_eqhsf")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Player" unique_id=642839173]
+mesh = SubResource("SphereMesh_ig7tw")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Player" unique_id=1932691566]
+shape = SubResource("SphereShape3D_0xm2m")
+
+[node name="World" parent="." unique_id=229966145 instance=ExtResource("5_tq8yk")]

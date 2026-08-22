@@ -1,0 +1,68 @@
+[gd_scene format=3 uid="uid://somyxj455r1v"]
+
+[ext_resource type="Script" uid="uid://ru2hswlboryw" path="res://controllers/matches.gd" id="1_q6md8"]
+[ext_resource type="PackedScene" uid="uid://d12da7p7161k" path="res://components/ui/input.tscn" id="2_q6md8"]
+
+[node name="Matches" type="Control" unique_id=302448929]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_q6md8")
+metadata/_custom_type_script = "uid://bo4r3mfd53akm"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=1178512255]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer" unique_id=1275220149]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="HBoxContainer/VBoxContainer" unique_id=2070547065]
+layout_mode = 2
+text = "Create Match"
+
+[node name="Name" parent="HBoxContainer/VBoxContainer" unique_id=626841620 instance=ExtResource("2_q6md8")]
+unique_name_in_owner = true
+layout_mode = 2
+type = 0
+label = "Match name"
+placeholder = "John's match"
+
+[node name="Map" parent="HBoxContainer/VBoxContainer" unique_id=145696147 instance=ExtResource("2_q6md8")]
+unique_name_in_owner = true
+layout_mode = 2
+type = 0
+label = "Map"
+placeholder = "map"
+
+[node name="Password" parent="HBoxContainer/VBoxContainer" unique_id=1728332945 instance=ExtResource("2_q6md8")]
+unique_name_in_owner = true
+layout_mode = 2
+type = 1
+label = "Password"
+placeholder = "password"
+
+[node name="Create" type="Button" parent="HBoxContainer/VBoxContainer" unique_id=496742412]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Create"
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="HBoxContainer" unique_id=1804995187]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="HBoxContainer/VBoxContainer2" unique_id=343746928]
+layout_mode = 2
+text = "Matches"
+
+[node name="Matches" type="Control" parent="HBoxContainer/VBoxContainer2" unique_id=596849989]
+layout_mode = 2
