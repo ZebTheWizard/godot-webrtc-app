@@ -19,10 +19,8 @@ offset_bottom = 320.0
 [node name="Username" parent="VBoxContainer" unique_id=626841620 instance=ExtResource("2_hlunc")]
 unique_name_in_owner = true
 layout_mode = 2
-type = 0
 label = "Username"
 placeholder = "username"
-error = ""
 
 [node name="Password" parent="VBoxContainer" unique_id=299691310 instance=ExtResource("2_hlunc")]
 unique_name_in_owner = true
@@ -30,7 +28,6 @@ layout_mode = 2
 type = 1
 label = "Password"
 placeholder = "password"
-error = ""
 
 [node name="Password Confirmation" parent="VBoxContainer" unique_id=711665601 instance=ExtResource("2_hlunc")]
 unique_name_in_owner = true
@@ -38,14 +35,15 @@ layout_mode = 2
 type = 1
 label = "Confirm Password"
 placeholder = "password"
-error = ""
 
 [node name="Submit" type="Button" parent="VBoxContainer" unique_id=786338645]
 unique_name_in_owner = true
 layout_mode = 2
+theme_type_variation = &"PrimaryButton"
 text = "Sign up"
 
 [node name="Login" type="LinkButton" parent="VBoxContainer" unique_id=362218470]
 unique_name_in_owner = true
 layout_mode = 2
+focus_mode = 2
 text = "Login"

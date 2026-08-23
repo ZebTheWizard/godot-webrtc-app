@@ -1,6 +1,7 @@
 class_name DAO extends Node
 
-var db
+var db: SQLite
+var crypto: CryptoUtils
 
 var match_status = {
 	&"MATCHING": &"matching",
@@ -18,41 +19,63 @@ var match_type = {
 
 
 func _init() -> void:
+	crypto = CryptoUtils.new()
 	db = SQLite.new()
 	db.path = "user://data.db"
 	db.open_db()
 	db.foreign_keys = true
 	
-	db.create_table("players", {
-		"id" : {"data_type": "text", "primary_key" : true, "not_null" : true, },
-		"name": {"data_type" : "text"},
-		"password" : {"data_type" : "text"},
-		"clientId": {"data_type" : "text"},
-		"team": {"data_type" : "int"},
-		"match_id": {"data_type": "string", "foreign_key": "matches.id"}
-	})
-	
-	db.create_table('matches', {
-		"id" : {"data_type": "text", "primary_key" : true, "not_null" : true, },
-		"name": {"data_type" : "text"},
-		"password": {"data_type" : "text"},
-		"map": {"data_type" : "text"},
-		"status": {"data_type" : "text"},
-		"type": {"data_type" : "text"},
-	})
+	var matches_query := """
+	CREATE TABLE IF NOT EXISTS matches (
+	    id TEXT PRIMARY KEY NOT NULL UNIQUE,
+	    name TEXT,
+	    password TEXT,
+	    map TEXT,
+	    status TEXT,
+	    type TEXT
+	);
+	"""
+
+	var players_query := """
+	CREATE TABLE IF NOT EXISTS players (
+	    id TEXT PRIMARY KEY NOT NULL UNIQUE,
+	    username TEXT NOT NULL UNIQUE COLLATE NOCASE,
+	    password TEXT NOT NULL,
+	    client_id INTEGER,
+	    team INTEGER,
+	    match_id TEXT,
+	    FOREIGN KEY (match_id) REFERENCES matches(id)
+	);
+	"""
+
+	db.query(matches_query)
+	db.query(players_query)
 	
 func insert_match(data:Dictionary = {}):
-	var id = uuid()
+	var id = crypto.GenerateUUID()
 	db.insert_row("matches", {
 		"id": id,
-		"map": data.get("map", map.DEFAULT),
 		"name": data.get('name', 'Unnamed Match'),
-		'password': data.get('password'),
+		"password": data.get("password"),
+		'map': data.get("map", map.DEFAULT),
 		"status": data.get("status", match_status.MATCHING),
 		"type": data.get("type", match_type.FFA)
 	})
 	
 	return get_match_by_id(id)
+
+func insert_player(data:Dictionary = {}):
+	var id = crypto.GenerateUUID()
+	db.insert_row("players", {
+		"id": id,
+		"username": data.get("username"),
+		"password": data.get('password'),
+		'client_id': data.get('client_id'),
+		"team": data.get("team"),
+		"match_id": data.get("match_id")
+	})
+	
+	return get_player_by_id(id)
 	
 func get_match_by_id(id:String):
 	var query = "SELECT * from matches where id = ?"
@@ -60,20 +83,22 @@ func get_match_by_id(id:String):
 	db.query_with_bindings(query, paramBindings)
 	for result in db.query_result:
 		return result
-
-func uuid() -> String:
-	var crypto = Crypto.new()
-	var bytes = crypto.generate_random_bytes(16)
-
-	bytes[6] = (bytes[6] & 0x0f) | 0x40
-	bytes[8] = (bytes[8] & 0x3f) | 0x80
-
-	var hex = bytes.hex_encode()
-
-	return "%s-%s-%s-%s-%s" % [
-		hex.substr(0, 8),
-		hex.substr(8, 4),
-		hex.substr(12, 4),
-		hex.substr(16, 4),
-		hex.substr(20, 12)
-	]
+	
+func get_matches():
+	var query = "SELECT * from matches ORDER BY name"
+	db.query_with_bindings(query, [])
+	return db.query_result
+		
+func get_player_by_id(id:String):
+	var query = "SELECT * from players where id = ?"
+	var paramBindings = [id]
+	db.query_with_bindings(query, paramBindings)
+	for result in db.query_result:
+		return result
+			
+func get_player_by_username(username:String):
+	var query = "SELECT * from players where username = ?"
+	var paramBindings = [username]
+	db.query_with_bindings(query, paramBindings)
+	for result in db.query_result:
+		return result

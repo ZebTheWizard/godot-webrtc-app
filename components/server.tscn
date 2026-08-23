@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://ctdgao6rt4s3c"]
+
+[ext_resource type="Script" uid="uid://bkmunx5paspp0" path="res://components/server/server.gd" id="1_23723"]
+
+[node name="Server" type="CanvasLayer" unique_id=137213101]
+script = ExtResource("1_23723")
+
+[node name="Start Signaling Server" type="Button" parent="." unique_id=177565606]
+unique_name_in_owner = true
+offset_right = 12.0
+offset_bottom = 6.0
+text = "Start Signaling Server"

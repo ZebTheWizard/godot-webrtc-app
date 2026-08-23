@@ -6,17 +6,12 @@ extends Page
 @onready var _password = $"%Password"
 
 func _mount(data:Dictionary):
-	print('login mounted')
-	_submit.disabled = true
+	bind_visibility()
 	_submit.pressed.connect(_on_submit_pressed)
 	_sign_up.pressed.connect(_on_sign_up_pressed)
 	Client.connected.connect(_on_connected)
 	Client.login_success.connect(_on_login_success)
 	Client.login_error.connect(_on_login_error)
-	
-
-func _process(delta: float) -> void:
-	Client.connect_to_signaling_server()
 	
 func _on_submit_pressed():
 	Client.login({
@@ -25,14 +20,17 @@ func _on_submit_pressed():
 	})
 	
 func _on_connected():
-	_submit.disabled = false
+	bind_visibility()
 	
 func _on_login_success():
 	navigate_to('matches')
 	
 func _on_login_error(error):
-	_username.error = error.username
-	_password.error = error.password
+	_username.error = error.get('username', '')
+	_password.error = error.get('password', '')
 
 func _on_sign_up_pressed():
 	navigate_to('signup')
+
+func bind_visibility():
+	_submit.disabled = not Client.established

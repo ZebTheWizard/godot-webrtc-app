@@ -33,9 +33,11 @@ placeholder = "password"
 [node name="Submit" type="Button" parent="VBoxContainer" unique_id=786338645]
 unique_name_in_owner = true
 layout_mode = 2
+theme_type_variation = &"PrimaryButton"
 text = "Login"
 
 [node name="Sign up" type="LinkButton" parent="VBoxContainer" unique_id=362218470]
 unique_name_in_owner = true
 layout_mode = 2
+focus_mode = 2
 text = "Sign up"

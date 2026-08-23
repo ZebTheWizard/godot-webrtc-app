@@ -1,6 +1,5 @@
 [gd_scene format=3 uid="uid://b038pyuu1j84d"]
 
-[ext_resource type="Script" uid="uid://cim2t7yrw3sab" path="res://main.gd" id="1_ig7tw"]
 [ext_resource type="PackedScene" uid="uid://dn4gyop62f76g" path="res://views/login.tscn" id="2_0xm2m"]
 
 [node name="Control" type="Control" unique_id=636017652]
@@ -10,14 +9,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_ig7tw")
 
 [node name="Login" parent="." unique_id=487657305 instance=ExtResource("2_0xm2m")]
 layout_mode = 0
-
-[node name="Start Signaling Server" type="Button" parent="." unique_id=1314350995]
-unique_name_in_owner = true
-layout_mode = 0
-offset_right = 12.0
-offset_bottom = 6.0
-text = "Start Signaling Server"

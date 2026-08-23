@@ -1,0 +1,42 @@
+[gd_scene format=3 uid="uid://okuqgksk67gi"]
+
+[ext_resource type="Script" uid="uid://p8ngcfpdh36l" path="res://components/match/match.gd" id="1_aifqa"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_53lim"]
+content_margin_left = 1.0
+bg_color = Color(0.19614309, 0.19614312, 0.19614297, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[node name="Match" type="PanelContainer" unique_id=1451014349]
+offset_right = 351.0
+offset_bottom = 50.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_53lim")
+script = ExtResource("1_aifqa")
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1791661389]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=495695284]
+layout_mode = 2
+
+[node name="Name" type="Label" parent="MarginContainer/VBoxContainer" unique_id=1128063510]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Match Title"
+
+[node name="Uuid" type="Label" parent="MarginContainer/VBoxContainer" unique_id=255481163]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ab055ab6-b0ec-4cc8-a5ed-1ec9523ef0ca"
+
+[node name="LinkButton" type="Button" parent="." unique_id=1678099685]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"MatchLink"

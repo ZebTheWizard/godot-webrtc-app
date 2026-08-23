@@ -24,6 +24,7 @@ config/icon="res://icon.svg"
 DotEnv="*uid://b3yktbv0hmq2v"
 Client="*uid://bax4w2nw05nny"
 SignalingServer="*uid://dey4k0r64ilkt"
+Server="*uid://ctdgao6rt4s3c"
 
 [editor_plugins]
 

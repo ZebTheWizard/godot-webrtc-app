@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://ru2hswlboryw" path="res://controllers/matches.gd" id="1_q6md8"]
 [ext_resource type="PackedScene" uid="uid://d12da7p7161k" path="res://components/ui/input.tscn" id="2_q6md8"]
+[ext_resource type="PackedScene" uid="uid://okuqgksk67gi" path="res://components/match.tscn" id="3_qe61m"]
 
 [node name="Matches" type="Control" unique_id=302448929]
 layout_mode = 3
@@ -33,14 +34,12 @@ text = "Create Match"
 [node name="Name" parent="HBoxContainer/VBoxContainer" unique_id=626841620 instance=ExtResource("2_q6md8")]
 unique_name_in_owner = true
 layout_mode = 2
-type = 0
 label = "Match name"
 placeholder = "John's match"
 
 [node name="Map" parent="HBoxContainer/VBoxContainer" unique_id=145696147 instance=ExtResource("2_q6md8")]
 unique_name_in_owner = true
 layout_mode = 2
-type = 0
 label = "Map"
 placeholder = "map"
 
@@ -54,6 +53,7 @@ placeholder = "password"
 [node name="Create" type="Button" parent="HBoxContainer/VBoxContainer" unique_id=496742412]
 unique_name_in_owner = true
 layout_mode = 2
+theme_type_variation = &"PrimaryButton"
 text = "Create"
 
 [node name="VBoxContainer2" type="VBoxContainer" parent="HBoxContainer" unique_id=1804995187]
@@ -64,5 +64,44 @@ size_flags_horizontal = 3
 layout_mode = 2
 text = "Matches"
 
-[node name="Matches" type="Control" parent="HBoxContainer/VBoxContainer2" unique_id=596849989]
+[node name="HBoxContainer2" type="HBoxContainer" parent="HBoxContainer/VBoxContainer2" unique_id=555997059]
 layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/VBoxContainer2/HBoxContainer2" unique_id=1904098962]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="HBoxContainer/VBoxContainer2/HBoxContainer2/HBoxContainer" unique_id=798575799]
+layout_mode = 2
+text = "Auto refresh"
+
+[node name="AutoRefresh" type="CheckButton" parent="HBoxContainer/VBoxContainer2/HBoxContainer2/HBoxContainer" unique_id=1216405554]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Refresh" type="Button" parent="HBoxContainer/VBoxContainer2/HBoxContainer2" unique_id=132410400]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Refresh"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/VBoxContainer2" unique_id=214907401]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ScrollContainer" type="ScrollContainer" parent="HBoxContainer/VBoxContainer2/HBoxContainer" unique_id=680888405]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Matches" type="VBoxContainer" parent="HBoxContainer/VBoxContainer2/HBoxContainer/ScrollContainer" unique_id=180545712]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+accessibility_region = true
+
+[node name="Match2" parent="HBoxContainer/VBoxContainer2/HBoxContainer/ScrollContainer/Matches" unique_id=2140060665 instance=ExtResource("3_qe61m")]
+layout_mode = 2
+size_flags_vertical = 0
+
+[node name="Match" parent="HBoxContainer/VBoxContainer2/HBoxContainer/ScrollContainer/Matches" unique_id=168882004 instance=ExtResource("3_qe61m")]
+layout_mode = 2
+size_flags_vertical = 0
