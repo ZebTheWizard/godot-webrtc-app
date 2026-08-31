@@ -1,21 +1,20 @@
-[gd_scene load_steps=14 format=3 uid="uid://bvg3jmt3ugjoa"]
+[gd_scene format=3 uid="uid://bvg3jmt3ugjoa"]
 
-[ext_resource type="Shader" uid="uid://b86gbtaqxa2n4" path="res://floor.gdshader" id="1_p3ots"]
+[ext_resource type="Shader" uid="uid://bxy6l0johj2kj" path="res://triplanar.gdshader" id="1_p3ots"]
 [ext_resource type="Shader" uid="uid://ckdit5f7cydlk" path="res://straight_wall.gdshader" id="1_q00ai"]
+[ext_resource type="Texture2D" uid="uid://bvmwa3li1cpwx" path="res://texture18.png" id="2_8qfjo"]
 [ext_resource type="Shader" uid="uid://nbh8hayysvx8" path="res://outer_corner_wall.gdshader" id="2_qnn0w"]
 [ext_resource type="Shader" uid="uid://pw6h31mr2frk" path="res://endcap_wall.gdshader" id="3_g5qi2"]
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_a2xgp"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_j2qm1"]
 render_priority = 0
 shader = ExtResource("1_p3ots")
-shader_parameter/top_outline_color = Color(0, 0.53, 1, 1)
-shader_parameter/wall_top_color = Color(0.8, 0.1, 0.5, 1)
-shader_parameter/wall_bottom_color = Color(0.05, 0.1, 0.4, 1)
-shader_parameter/border_thickness = 0.4
-shader_parameter/wall_height = 1.0
+shader_parameter/texture_x = ExtResource("2_8qfjo")
+shader_parameter/texture_y = ExtResource("2_8qfjo")
+shader_parameter/texture_z = ExtResource("2_8qfjo")
 
 [sub_resource type="BoxMesh" id="BoxMesh_170dq"]
-material = SubResource("ShaderMaterial_a2xgp")
+material = SubResource("ShaderMaterial_j2qm1")
 
 [sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_xrthj"]
 points = PackedVector3Array(0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5)
@@ -56,39 +55,39 @@ shader_parameter/wall_height = 1.0
 [sub_resource type="BoxMesh" id="BoxMesh_8qfjo"]
 material = SubResource("ShaderMaterial_p3ots")
 
-[node name="Primatives" type="Node3D"]
+[node name="Primatives" type="Node3D" unique_id=627692688]
 
-[node name="Floor" type="MeshInstance3D" parent="."]
+[node name="Floor" type="MeshInstance3D" parent="." unique_id=781751064]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0)
 mesh = SubResource("BoxMesh_170dq")
 
-[node name="StaticBody3D" type="StaticBody3D" parent="Floor"]
+[node name="StaticBody3D" type="StaticBody3D" parent="Floor" unique_id=1705265946]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor/StaticBody3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor/StaticBody3D" unique_id=239574688]
 shape = SubResource("ConvexPolygonShape3D_xrthj")
 
-[node name="StraightWall" type="MeshInstance3D" parent="."]
+[node name="StraightWall" type="MeshInstance3D" parent="." unique_id=998066229]
 mesh = SubResource("BoxMesh_p3ots")
 
-[node name="StaticBody3D" type="StaticBody3D" parent="StraightWall"]
+[node name="StaticBody3D" type="StaticBody3D" parent="StraightWall" unique_id=1628576441]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="StraightWall/StaticBody3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StraightWall/StaticBody3D" unique_id=170157707]
 shape = SubResource("ConvexPolygonShape3D_xrthj")
 
-[node name="OuterCornerWall" type="MeshInstance3D" parent="."]
+[node name="OuterCornerWall" type="MeshInstance3D" parent="." unique_id=1902697128]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1)
 mesh = SubResource("BoxMesh_qnn0w")
 
-[node name="StaticBody3D" type="StaticBody3D" parent="OuterCornerWall"]
+[node name="StaticBody3D" type="StaticBody3D" parent="OuterCornerWall" unique_id=1137133402]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="OuterCornerWall/StaticBody3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="OuterCornerWall/StaticBody3D" unique_id=861473094]
 shape = SubResource("ConvexPolygonShape3D_xrthj")
 
-[node name="EndCapWall" type="MeshInstance3D" parent="."]
+[node name="EndCapWall" type="MeshInstance3D" parent="." unique_id=390792291]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, -1)
 mesh = SubResource("BoxMesh_8qfjo")
 
-[node name="StaticBody3D" type="StaticBody3D" parent="EndCapWall"]
+[node name="StaticBody3D" type="StaticBody3D" parent="EndCapWall" unique_id=592197607]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="EndCapWall/StaticBody3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="EndCapWall/StaticBody3D" unique_id=1672101812]
 shape = SubResource("ConvexPolygonShape3D_xrthj")

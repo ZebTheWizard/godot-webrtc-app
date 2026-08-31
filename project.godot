@@ -15,16 +15,19 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="Roll Royale"
+config/tags=PackedStringArray("3d", "multiplayer")
 run/main_scene="uid://b038pyuu1j84d"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [autoload]
 
+CommandLine="*uid://cy8um4bl2tlif"
 DotEnv="*uid://b3yktbv0hmq2v"
 Client="*uid://bax4w2nw05nny"
 SignalingServer="*uid://dey4k0r64ilkt"
 Server="*uid://ctdgao6rt4s3c"
+GD_="*uid://bkkcxcqheocke"
 
 [editor_plugins]
 
@@ -33,6 +36,34 @@ enabled=PackedStringArray("res://addons/dotenv/plugin.cfg", "res://addons/godot-
 [gui]
 
 theme/custom="uid://dpe87e7rn343b"
+
+[importer_defaults]
+
+texture={
+"compress/channel_pack": 0,
+"compress/hdr_compression": 1,
+"compress/high_quality": false,
+"compress/lossy_quality": 0.7,
+"compress/mode": 0,
+"compress/normal_map": 0,
+"compress/rdo_quality_loss": 0.0,
+"compress/uastc_level": 0,
+"detect_3d/compress_to": 0,
+"mipmaps/generate": false,
+"mipmaps/limit": -1,
+"process/channel_remap/alpha": 3,
+"process/channel_remap/blue": 2,
+"process/channel_remap/green": 1,
+"process/channel_remap/red": 0,
+"process/fix_alpha_border": true,
+"process/hdr_as_srgb": false,
+"process/hdr_clamp_exposure": false,
+"process/normal_map_invert_y": false,
+"process/premult_alpha": false,
+"process/size_limit": 0,
+"roughness/mode": 0,
+"roughness/src_normal": ""
+}
 
 [rendering]
 

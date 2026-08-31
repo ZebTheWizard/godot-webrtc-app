@@ -21,13 +21,15 @@ enum message {
 	MATCH_CREATE_SUCCESS,
 	MATCH_CREATE_ERROR,
 	MATCH_LIST,
+	LOBBY,
 	MATCH_JOIN,
 	MATCH_CONNECTED,
-	MATCH_DISCONNECTED,
-	MATCH_INFO,
-	WEBRTC_OFFER,
-	WEBRTC_ANSWER,
-	WEBRTC_EXCHANGE
+	MATCH_LEAVE,
+	#MATCH_DISCONNECTED,
+	#MATCH_INFO,
+	#WEBRTC_OFFER,
+	#WEBRTC_ANSWER,
+	#WEBRTC_EXCHANGE
 }
 
 @export var port: int = 8000
@@ -58,12 +60,18 @@ func _process(delta: float) -> void:
 			
 			if msg.type == message.MATCH_CREATE:
 				create_match(msg.id, msg.data)
+			elif msg.type == message.MATCH_JOIN:
+				join_match(msg.id, msg.data)
+			elif msg.type == message.MATCH_LEAVE:
+				leave_match(msg.id, msg.data)
 			elif msg.type == message.MATCH_LIST:
 				list_matches(msg.id)
 			elif msg.type == message.LOGIN:
 				login(msg.id, msg.data)
 			elif msg.type == message.SIGNUP:
 				signup(msg.id, msg.data)
+			elif msg.type == message.LOBBY:
+				get_lobby(msg.id, msg.data)
 			else:
 				print(msg)
 
@@ -74,17 +82,28 @@ func create_match(client_id, data):
 		error.name = "Match name must be at least 3 characters."
 	if data.get('map') not in db.map:
 		error.map = "Unknown map"
+	var player = db.get_player_by_client_id(client_id)
+	if not player:
+		error.general = "Player %s not found." % client_id
 	
 	if not error.is_empty():
+
 		return send_message_to(client_id, {
 			'type': message.MATCH_CREATE_ERROR,
 			'data': error
 		})
 	
+	print('trying to create match')
 	var _match = db.insert_match({
 		'name': name,
-		'map': data.map,
-		'password': crypto.HashPassword(data.password)
+		'map': data.get('map'),
+		'password': crypto.HashPassword(data.get('password'))
+	})
+	
+	db.update_player_by_client_id(player.get('client_id'), {
+		'is_host': true,
+		'match_id': _match.get('id'),
+		'client_id': client_id
 	})
 	
 	send_message({
@@ -92,22 +111,66 @@ func create_match(client_id, data):
 		'data': db.get_matches()
 	})
 	
+	send_message_to(client_id, {
+		'type': message.MATCH_CONNECTED,
+		'data': GD_.omit(_match, ['password'])
+	})
+
+func join_match(client_id, data):
+	var player = db.get_player_by_client_id(client_id)
+	var _match = db.get_match_by_id(data.get('id'))
+	if player and _match:
+		db.update_player_by_client_id(client_id, {
+			'match_id': _match.get('id')
+		})
+		
+		send_message_to(client_id, {
+			'type': message.MATCH_CONNECTED,
+			'data': GD_.omit(_match, ['password'])
+		})
+		
+		var players = db.get_players_by_match_id(_match.get('id'))
+		for p in players:
+			send_message_to(p.get('client_id'), {
+				'type': message.LOBBY,
+				'data': players
+			})
+
+func leave_match(client_id, data):
+	print('server: leave match')
+	#var player = db.get_player_by_client_id(client_id)
+	#if player:
+		#if player.get('is_host'):
+			#var _match = db.get_match_by_id(player.get('match_id'))
+			#db.delete_match_by_id(player.get('match_id'))
+		#db.update_player_by_client_id(client_id, {
+			#'is_host': false,
+			#'match_id': null,
+		#})
+		
+
 func list_matches(client_id):
 	send_message_to(client_id, {
 		'type': message.MATCH_LIST,
 		'data': db.get_matches()
 	})
 	
+func get_lobby(client_id, data):
+	send_message_to(client_id, {
+		'type': message.LOBBY,
+		'data': db.get_players_by_match_id(data.get('id'))
+	})
+	
 func login(client_id, data):
 	var error = {}
 	if client_id not in clients:
 		error.general = "Invalid client_id."
-	var player = db.get_player_by_username(data.username)
+	var player = db.get_player_by_username(data.get('username'))
 	if not player:
 		error.username = 'Invalid username or password'
 		error.password = 'Invalid username or password'
 	else:
-		if player.password != crypto.HashPassword(data.password):
+		if player.password != crypto.HashPassword(data.get('password')):
 			error.username = 'Invalid username or password'
 			error.password = 'Invalid username or password'
 	if not error.is_empty():
@@ -116,38 +179,47 @@ func login(client_id, data):
 			'data': error
 		})
 	
+	print('logged in: %s should be %s' % [player.client_id, client_id])
+	db.update_player_by_client_id(player.client_id, {
+		'client_id': client_id
+	})
+	
+	player = db.get_player_by_client_id(client_id)
+	
 	send_message_to(client_id,{
-		'type': message.LOGIN_SUCCESS
+		'type': message.LOGIN_SUCCESS,
+		'data': GD_.omit(player, ['password'])
 	})
 	
 func signup(client_id, data):
 	var error = {}
 	if client_id not in clients:
 		error.general = "Invalid client_id."
-	var username = data.username.strip_edges()
+	var username = data.get('username').strip_edges()
 	if len(username) < 3:
 		error.username = "Username must be at least 3 characters"
 	else:
-		var player = db.get_player_by_username(data.username)
+		var player = db.get_player_by_username(data.get('username'))
 		if player:
 			error.username = "Username already exists."
-	if data.password != data.password_confirm:
+	if data.get('password') != data.get('password_confirm'):
 		error.password = "Passwords do not match."
-	if len(data.password) < 8:
+	if len(data.get('password')) < 8:
 		error.password = "Password must be at least 8 characters"
 	if not error.is_empty():
 		return send_message_to(client_id,{
 			'type': message.SIGNUP_ERROR,
 			'data': error
 		})
-	db.insert_player({
+	var player = db.insert_player({
 		'username': username,
-		'password': crypto.HashPassword(data.password),
+		'password': crypto.HashPassword(data.get('password')),
 		'client_id': client_id
 	})
-	send_message_to(client_id, {
-		'type': message.SIGNUP_SUCCESS
-	})
+	if player:
+		send_message_to(client_id, {
+			'type': message.SIGNUP_SUCCESS
+		})
 
 func _on_peer_connected(id):
 	print('peer connected: %s' % id)
@@ -174,6 +246,7 @@ func start_server():
 	return server_error == 0
 
 func send_message_to(id:int, message:Dictionary):
+	print("server to %s: %s" % [id, message])
 	peer.get_peer(id).put_packet(JSON.stringify(message).to_utf8_buffer())
 
 func send_message(message:Dictionary):

@@ -1,0 +1,78 @@
+[gd_scene format=3 uid="uid://dkfn1golen4fn"]
+
+[ext_resource type="Script" uid="uid://cbs4sdwvd26v1" path="res://controllers/lobby.gd" id="1_isl85"]
+[ext_resource type="Texture2D" uid="uid://kwcuvl2pahe3" path="res://maps/default.svg" id="2_5s3we"]
+[ext_resource type="PackedScene" uid="uid://7qjqg48o0rfq" path="res://components/player.tscn" id="3_v8j1i"]
+
+[node name="Lobby" type="Control" unique_id=104400926]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_isl85")
+metadata/_custom_type_script = "uid://bo4r3mfd53akm"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=274604142]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="HBoxContainer" unique_id=647124898]
+layout_mode = 2
+size_flags_horizontal = 0
+alignment = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer/VBoxContainer2" unique_id=887889152]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Image" type="TextureRect" parent="HBoxContainer/VBoxContainer2/VBoxContainer" unique_id=550931033]
+unique_name_in_owner = true
+layout_mode = 2
+texture = ExtResource("2_5s3we")
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="HBoxContainer/VBoxContainer2" unique_id=506738138]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Start" type="Button" parent="HBoxContainer/VBoxContainer2/VBoxContainer2" unique_id=1912208700]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"PrimaryButton"
+text = "Start"
+
+[node name="Leave" type="Button" parent="HBoxContainer/VBoxContainer2/VBoxContainer2" unique_id=873431401]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"PrimaryButton"
+text = "Leave"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer" unique_id=645781693]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CenterContainer" type="CenterContainer" parent="HBoxContainer/VBoxContainer" unique_id=1764437537]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer/VBoxContainer/CenterContainer" unique_id=803823005]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="HBoxContainer/VBoxContainer/CenterContainer/VBoxContainer" unique_id=315690820]
+layout_mode = 2
+text = "Players"
+horizontal_alignment = 1
+
+[node name="Players" type="VBoxContainer" parent="HBoxContainer/VBoxContainer/CenterContainer/VBoxContainer" unique_id=1672620451]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Player" parent="HBoxContainer/VBoxContainer/CenterContainer/VBoxContainer/Players" unique_id=1451014349 instance=ExtResource("3_v8j1i")]
+layout_mode = 2
+
+[node name="Player2" parent="HBoxContainer/VBoxContainer/CenterContainer/VBoxContainer/Players" unique_id=1868389550 instance=ExtResource("3_v8j1i")]
+layout_mode = 2

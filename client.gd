@@ -12,13 +12,15 @@ extends Node
 #   - If peer: make answer?
 
 signal connected
-signal login_success
+signal login_success(player:Dictionary)
 signal login_error(error:Dictionary)
 signal signup_success
 signal signup_error(error:Dictionary)
 signal matches(matches:Array)
 signal match_create_success
 signal match_create_error(error:Dictionary)
+signal match_connected(_match:Dictionary)
+signal lobby(players:Dictionary)
 
 var ws : WebSocketMultiplayerPeer = WebSocketMultiplayerPeer.new()
 var rtc : WebRTCMultiplayerPeer = WebRTCMultiplayerPeer.new()
@@ -38,9 +40,16 @@ func _process(delta: float) -> void:
 				establish_multiplayer_networking(msg.data.id)
 				id = msg.data.id
 				established = true
+				print('client connected to server:', CommandLine.arguments, CommandLine.options)
+				if CommandLine.options.has('username'):
+					print('needs to login from cli')
+					login({
+						'username': CommandLine.options.get('username'),
+						'password': CommandLine.options.get('password')
+					})
 				connected.emit()
 			elif msg.type == SignalingServer.message.LOGIN_SUCCESS:
-				login_success.emit()
+				login_success.emit(msg.data)
 			elif msg.type == SignalingServer.message.LOGIN_ERROR:
 				login_error.emit(msg.data)
 			elif msg.type == SignalingServer.message.SIGNUP_SUCCESS:
@@ -53,6 +62,10 @@ func _process(delta: float) -> void:
 				match_create_error.emit(msg.data)
 			elif msg.type == SignalingServer.message.MATCH_LIST:
 				matches.emit(msg.data)
+			elif msg.type == SignalingServer.message.MATCH_CONNECTED:
+				match_connected.emit(msg.data)
+			elif msg.type == SignalingServer.message.LOBBY:
+				lobby.emit(msg.data)
 			else:
 				print(msg)
 
@@ -62,9 +75,29 @@ func create_match(data:Dictionary):
 		'data': data
 	})
 	
+func join_match(data:Dictionary):
+	send_ws_message({
+		'type': SignalingServer.message.MATCH_JOIN,
+		'data': data
+	})
+	
+func leave_match(data:Dictionary):
+	send_ws_message({
+		'type': SignalingServer.message.MATCH_LEAVE,
+		'data': data
+	})
+	
 func get_matches():
 	send_ws_message({
 		"type": SignalingServer.message.MATCH_LIST,
+	})
+	
+func get_lobby(id):
+	send_ws_message({
+		"type": SignalingServer.message.LOBBY,
+		'data': {
+			'id': id
+		}
 	})
 	
 func login(data:Dictionary):

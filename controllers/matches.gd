@@ -24,6 +24,7 @@ func _mount(data:Dictionary):
 	Client.matches.connect(_on_matches_changed)
 	Client.match_create_success.connect(_on_create_success)
 	Client.match_create_error.connect(_on_create_error)
+	Client.match_connected.connect(_on_match_connected)
 	Client.get_matches()
 
 func refresh_matches():
@@ -32,12 +33,11 @@ func refresh_matches():
 	for child in _matches.get_children():
 		child.queue_free()
 		
-	for i in range(5):
-		for match_data in matches:
-			var item = _match.instantiate()
-			item.match_data = match_data
-			item.pressed.connect(func (): print(match_data.id))
-			_matches.add_child(item)
+	for match_data in matches:
+		var item = _match.instantiate()
+		item.match_data = match_data
+		item.pressed.connect(func (): Client.join_match({'id': match_data.id}))
+		_matches.add_child(item)
 	
 func bind_visibility():
 	_create.disabled = not Client.established
@@ -59,6 +59,7 @@ func _on_create_success():
 func _on_create_error(error:Dictionary):
 	_name.error = error.get('name', "")
 	_map.error = error.get("map", "")
+	print(error)
 
 func _on_auto_refresh_change(value:bool):
 	_refresh.visible = not value
@@ -71,3 +72,7 @@ func _on_matches_changed(matches: Array):
 	matches_buffer = matches
 	if auto_refresh or self.matches.is_empty():
 		refresh_matches()
+
+func _on_match_connected(_match:Dictionary):
+	print('match connected')
+	navigate_to('lobby', _match)

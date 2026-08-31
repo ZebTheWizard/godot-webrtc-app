@@ -22,7 +22,7 @@ func _on_submit_pressed():
 func _on_connected():
 	bind_visibility()
 	
-func _on_login_success():
+func _on_login_success(player: Dictionary):
 	navigate_to('matches')
 	
 func _on_login_error(error):

@@ -7,6 +7,7 @@ var routes = {
 	&"login": &"uid://dn4gyop62f76g",
 	&"signup": &"uid://nhpfn15f23g3",
 	&"matches": &"uid://somyxj455r1v",
+	&"lobby": &"uid://dkfn1golen4fn",
 	&"404": &"uid://cio3senb4sfjx"
 }
 
