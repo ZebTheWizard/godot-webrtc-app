@@ -29,23 +29,22 @@ func _mount(data:Dictionary):
 
 func refresh_matches():
 	matches = matches_buffer
-	print('refresh matches', matches)
 	for child in _matches.get_children():
 		child.queue_free()
-		
+
 	for match_data in matches:
 		var item = _match.instantiate()
 		item.match_data = match_data
 		item.pressed.connect(func (): Client.join_match({'id': match_data.id}))
 		_matches.add_child(item)
-	
+
 func bind_visibility():
 	_create.disabled = not Client.established
-	
+
 func _on_connected():
 	bind_visibility()
 	Client.get_matches()
-	
+
 func _on_create_pressed():
 	Client.create_match({
 		'name': _name.text,
@@ -55,7 +54,7 @@ func _on_create_pressed():
 
 func _on_create_success():
 	print('created match')
-	
+
 func _on_create_error(error:Dictionary):
 	_name.error = error.get('name', "")
 	_map.error = error.get("map", "")
@@ -64,15 +63,14 @@ func _on_create_error(error:Dictionary):
 func _on_auto_refresh_change(value:bool):
 	_refresh.visible = not value
 	auto_refresh = value
-		
+
 func _on_refresh_pressed():
 	refresh_matches()
-	
+
 func _on_matches_changed(matches: Array):
 	matches_buffer = matches
 	if auto_refresh or self.matches.is_empty():
 		refresh_matches()
 
 func _on_match_connected(_match:Dictionary):
-	print('match connected')
 	navigate_to('lobby', _match)

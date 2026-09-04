@@ -25,7 +25,7 @@ enum message {
 	MATCH_JOIN,
 	MATCH_CONNECTED,
 	MATCH_LEAVE,
-	#MATCH_DISCONNECTED,
+	MATCH_DISCONNECTED,
 	#MATCH_INFO,
 	#WEBRTC_OFFER,
 	#WEBRTC_ANSWER,
@@ -34,30 +34,32 @@ enum message {
 
 @export var port: int = 8000
 
-var peer : WebSocketMultiplayerPeer = WebSocketMultiplayerPeer.new()
-var db : DAO = DAO.new()
-var crypto : CryptoUtils = CryptoUtils.new()
-var clients: Dictionary = {}
+var peer : WebSocketMultiplayerPeer
+var db : DAO
+var crypto : CryptoUtils
+var clients: Dictionary
 
 func _ready() -> void:
-	if "--server" in OS.get_cmdline_user_args():
+	if "--server" in OS.get_cmdline_args():
 		start_server()
 
 func _process(delta: float) -> void:
+	if not peer or not db:
+		return
 	peer.poll()
 	if peer.get_available_packet_count() > 0:
 		var packet = peer.get_packet()
 		if packet != null:
 			var msgString = packet.get_string_from_utf8()
 			var msg = JSON.parse_string(msgString)
-			
+
 			if msg is not Dictionary:
 				return
-				
+
 			msg.set('type', msg.get('type'))
 			msg.set('id', msg.get('id', 0) as int)
 			msg.set('data', msg.get('data', {}))
-			
+
 			if msg.type == message.MATCH_CREATE:
 				create_match(msg.id, msg.data)
 			elif msg.type == message.MATCH_JOIN:
@@ -85,32 +87,31 @@ func create_match(client_id, data):
 	var player = db.get_player_by_client_id(client_id)
 	if not player:
 		error.general = "Player %s not found." % client_id
-	
+
 	if not error.is_empty():
 
 		return send_message_to(client_id, {
 			'type': message.MATCH_CREATE_ERROR,
 			'data': error
 		})
-	
-	print('trying to create match')
+
 	var _match = db.insert_match({
 		'name': name,
 		'map': data.get('map'),
 		'password': crypto.HashPassword(data.get('password'))
 	})
-	
+
 	db.update_player_by_client_id(player.get('client_id'), {
 		'is_host': true,
 		'match_id': _match.get('id'),
 		'client_id': client_id
 	})
-	
+
 	send_message({
 		'type': message.MATCH_LIST,
 		'data': db.get_matches()
 	})
-	
+
 	send_message_to(client_id, {
 		'type': message.MATCH_CONNECTED,
 		'data': GD_.omit(_match, ['password'])
@@ -123,12 +124,12 @@ func join_match(client_id, data):
 		db.update_player_by_client_id(client_id, {
 			'match_id': _match.get('id')
 		})
-		
+
 		send_message_to(client_id, {
 			'type': message.MATCH_CONNECTED,
 			'data': GD_.omit(_match, ['password'])
 		})
-		
+
 		var players = db.get_players_by_match_id(_match.get('id'))
 		for p in players:
 			send_message_to(p.get('client_id'), {
@@ -137,30 +138,59 @@ func join_match(client_id, data):
 			})
 
 func leave_match(client_id, data):
-	print('server: leave match')
-	#var player = db.get_player_by_client_id(client_id)
-	#if player:
-		#if player.get('is_host'):
-			#var _match = db.get_match_by_id(player.get('match_id'))
-			#db.delete_match_by_id(player.get('match_id'))
-		#db.update_player_by_client_id(client_id, {
-			#'is_host': false,
-			#'match_id': null,
-		#})
-		
+	var player = db.get_player_by_client_id(client_id)
+	if player:
+		var players = db.get_players_by_match_id(player.get('match_id'))
+		if player.get('is_host'):
+			db.delete_match_by_id(player.get('match_id'))
+			send_message({
+				'type': message.MATCH_LIST,
+				'data': db.get_matches()
+			})
+			db.update_player_by_client_id(client_id, {
+				'is_host': false,
+			})
+			for p in players:
+				var disconnect_data = {}
+				if p.get('client_id') != client_id:
+					disconnect_data.set('message', 'The host has left the match.')
+				send_message_to(p.get('client_id'), {
+					'type': message.MATCH_DISCONNECTED,
+					'data': disconnect_data
+				})
+		else:
+			db.update_player_by_client_id(client_id, {
+				'is_host': false,
+				'match_id': null,
+			})
+
+			send_message_to(client_id, {
+				'type': message.MATCH_DISCONNECTED,
+			})
+
+			for p in players:
+				if p.get('client_id') == client_id:
+					continue
+				send_message_to(p.get('client_id'), {
+					'type': message.LOBBY,
+					'data': players
+				})
+
+
+
 
 func list_matches(client_id):
 	send_message_to(client_id, {
 		'type': message.MATCH_LIST,
 		'data': db.get_matches()
 	})
-	
+
 func get_lobby(client_id, data):
 	send_message_to(client_id, {
 		'type': message.LOBBY,
 		'data': db.get_players_by_match_id(data.get('id'))
 	})
-	
+
 func login(client_id, data):
 	var error = {}
 	if client_id not in clients:
@@ -178,19 +208,18 @@ func login(client_id, data):
 			'type': message.LOGIN_ERROR,
 			'data': error
 		})
-	
-	print('logged in: %s should be %s' % [player.client_id, client_id])
-	db.update_player_by_client_id(player.client_id, {
+
+	db.update_player_by_username(player.username, {
 		'client_id': client_id
 	})
-	
+
 	player = db.get_player_by_client_id(client_id)
-	
+
 	send_message_to(client_id,{
 		'type': message.LOGIN_SUCCESS,
 		'data': GD_.omit(player, ['password'])
 	})
-	
+
 func signup(client_id, data):
 	var error = {}
 	if client_id not in clients:
@@ -230,12 +259,20 @@ func _on_peer_connected(id):
 			"id": id
 		}
 	})
-	
+
 func _on_peer_disconnected(id):
+	var player = db.get_player_by_client_id(id)
+	if player:
+		leave_match(id, {
+			'id': player.get('match_id')
+		})
 	clients.erase(id)
-	pass
 
 func start_server():
+	peer = WebSocketMultiplayerPeer.new()
+	db = DAO.new()
+	crypto = CryptoUtils.new()
+	clients = {}
 	var server_error = peer.create_server(port)
 	peer.peer_connected.connect(_on_peer_connected)
 	peer.peer_disconnected.connect(_on_peer_disconnected)

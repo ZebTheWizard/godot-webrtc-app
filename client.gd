@@ -20,6 +20,7 @@ signal matches(matches:Array)
 signal match_create_success
 signal match_create_error(error:Dictionary)
 signal match_connected(_match:Dictionary)
+signal match_disconnected(data:Dictionary)
 signal lobby(players:Dictionary)
 
 var ws : WebSocketMultiplayerPeer = WebSocketMultiplayerPeer.new()
@@ -35,6 +36,12 @@ func _process(delta: float) -> void:
 		if packet != null:
 			var msgString = packet.get_string_from_utf8()
 			var msg = JSON.parse_string(msgString)
+			
+			if msg is not Dictionary:
+				return
+				
+			msg.set('type', msg.get('type'))
+			msg.set('data', msg.get('data', {}))
 			
 			if msg.type == SignalingServer.message.ID:
 				establish_multiplayer_networking(msg.data.id)
@@ -64,6 +71,8 @@ func _process(delta: float) -> void:
 				matches.emit(msg.data)
 			elif msg.type == SignalingServer.message.MATCH_CONNECTED:
 				match_connected.emit(msg.data)
+			elif msg.type == SignalingServer.message.MATCH_DISCONNECTED:
+				match_disconnected.emit(msg.data)
 			elif msg.type == SignalingServer.message.LOBBY:
 				lobby.emit(msg.data)
 			else:
