@@ -195,14 +195,19 @@ func login(client_id, data):
 	var error = {}
 	if client_id not in clients:
 		error.general = "Invalid client_id."
+	print('Login: ', data)
 	var player = db.get_player_by_username(data.get('username'))
 	if not player:
-		error.username = 'Invalid username or password'
-		error.password = 'Invalid username or password'
+		error.username = 'Invalid username'
+		#error.username = 'Invalid username or password'
+		#error.password = 'Invalid username or password'
 	else:
+		print('player: ', player)
 		if player.password != crypto.HashPassword(data.get('password')):
-			error.username = 'Invalid username or password'
-			error.password = 'Invalid username or password'
+			print('password: %s %s' % [player.password, crypto.HashPassword(data.get('password'))])
+			error.password = 'Invalid password'
+			#error.username = 'Invalid username or password'
+			#error.password = 'Invalid username or password'
 	if not error.is_empty():
 		return send_message_to(client_id,{
 			'type': message.LOGIN_ERROR,
