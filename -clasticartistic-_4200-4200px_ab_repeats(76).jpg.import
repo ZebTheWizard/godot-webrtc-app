@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://b2wjwygmicpl4"
 path.s3tc="res://.godot/imported/-clasticartistic-_4200-4200px_ab_repeats(76).jpg-59de8994870f79b63012f5334cc8efd0.s3tc.ctex"
+path.etc2="res://.godot/imported/-clasticartistic-_4200-4200px_ab_repeats(76).jpg-59de8994870f79b63012f5334cc8efd0.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://-clasticartistic-_4200-4200px_ab_repeats(76).jpg"
-dest_files=["res://.godot/imported/-clasticartistic-_4200-4200px_ab_repeats(76).jpg-59de8994870f79b63012f5334cc8efd0.s3tc.ctex"]
+dest_files=["res://.godot/imported/-clasticartistic-_4200-4200px_ab_repeats(76).jpg-59de8994870f79b63012f5334cc8efd0.s3tc.ctex", "res://.godot/imported/-clasticartistic-_4200-4200px_ab_repeats(76).jpg-59de8994870f79b63012f5334cc8efd0.etc2.ctex"]
 
 [params]
 

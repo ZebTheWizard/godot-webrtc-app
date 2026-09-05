@@ -1,10 +1,28 @@
 extends Node
 
-const ENV_FILE_PATH = "res://.env"
+var ENV_FILE_PATH = OS.get_executable_path().get_base_dir() + "/.env"
 
 func _ready() -> void:
+	ENV_FILE_PATH = get_working_dir().path_join(".env")
+	#if OS.has_feature("editor"):
+		#ENV_FILE_PATH = "res://.env"
+	#else:
+		## OS.get_executable_path().get_base_dir() gets the directory containing the binary
+		#ENV_FILE_PATH = OS.get_executable_path().get_base_dir().path_join(".env")
+	print("ENV_FILE_PATH: ", ENV_FILE_PATH)
 	load_env()
-
+	
+	
+func get_working_dir() -> String:
+	# In exported builds, globalize_path("res://") resolves to the shell's current working directory
+	var cwd = ProjectSettings.globalize_path("res://")
+	
+	# Fallback for OS-level execution path if needed
+	if cwd.is_empty():
+		cwd = OS.get_environment("PWD")
+		
+	return cwd
+	
 func load_env() -> void:
 	if not FileAccess.file_exists(ENV_FILE_PATH):
 		# print("No .env file found at: ", ENV_FILE_PATH)

@@ -5,7 +5,7 @@ var is_debug
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-    is_debug = DotEnv.get_env('APP_DEBUG') == "true"
+	is_debug = DotEnv.get_env('APP_DEBUG') == "true"
 	$"%UserPanel".hide()
 	_start_signaling_server.pressed.connect(_on_start_signaling_server_pressed)
 	_start_signaling_server.visible = is_debug
