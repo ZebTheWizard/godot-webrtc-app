@@ -31,7 +31,7 @@ GD_="*uid://bkkcxcqheocke"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/dotenv/plugin.cfg", "res://addons/godot-sqlite/plugin.cfg")
+enabled=PackedStringArray("res://addons/dotenv/plugin.cfg", "res://addons/godot-sqlite/plugin.cfg", "res://addons/version_exporter/plugin.cfg")
 
 [gui]
 

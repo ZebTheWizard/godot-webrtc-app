@@ -274,6 +274,7 @@ func _on_peer_disconnected(id):
 	clients.erase(id)
 
 func start_server():
+	var version = get_git_version()
 	peer = WebSocketMultiplayerPeer.new()
 	db = DAO.new()
 	crypto = CryptoUtils.new()
@@ -281,7 +282,7 @@ func start_server():
 	var server_error = peer.create_server(port, "0.0.0.0")
 	peer.peer_connected.connect(_on_peer_connected)
 	peer.peer_disconnected.connect(_on_peer_disconnected)
-	print('starting server')
+	print('starting server on port: %s, version: %s' % [port, version])
 	var app_key = DotEnv.get_env('APP_KEY')
 	var salt = app_key if not app_key.is_empty() else crypto.GenerateSalt()
 	print("APP_KEY=%s" % salt)
@@ -299,3 +300,9 @@ func send_test_message():
 		"type": message.TEST,
 		"data": "test server to client"
 	})
+
+func get_git_version() -> String:
+	var config = ConfigFile.new()
+	if config.load("res://version.cfg") == OK:
+		return config.get_value("version", "commit", "dev-local")
+	return "dev-local"
