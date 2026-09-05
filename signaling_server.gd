@@ -267,7 +267,7 @@ func _on_peer_connected(id):
 
 func _on_peer_disconnected(id):
 	var player = db.get_player_by_client_id(id)
-	if player:
+	if player and player.get('match_id'):
 		leave_match(id, {
 			'id': player.get('match_id')
 		})
