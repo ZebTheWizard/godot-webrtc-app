@@ -14,14 +14,11 @@ func _ready() -> void:
 	
 	
 func get_working_dir() -> String:
-	# In exported builds, globalize_path("res://") resolves to the shell's current working directory
-	var cwd = ProjectSettings.globalize_path("res://")
+	var pwd = OS.get_environment("PWD")
+	if not pwd.is_empty():
+		return pwd
 	
-	# Fallback for OS-level execution path if needed
-	if cwd.is_empty():
-		cwd = OS.get_environment("PWD")
-		
-	return cwd
+	return ProjectSettings.globalize_path("res://")
 	
 func load_env() -> void:
 	if not FileAccess.file_exists(ENV_FILE_PATH):
