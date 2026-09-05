@@ -21,7 +21,11 @@ var match_type = {
 func _init() -> void:
 	crypto = CryptoUtils.new()
 	db = SQLite.new()
-	db.path = "user://data.db"
+	var db_path = DotEnv.get_env("DB_FILE")
+	if db_path:
+		db.path = db_path
+	else:
+		db.path = "user://data.db"
 	db.open_db()
 	db.foreign_keys = true
 
