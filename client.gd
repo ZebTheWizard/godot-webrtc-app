@@ -126,8 +126,11 @@ func signup(data:Dictionary):
 	})
 
 func connect_to_signaling_server():
+	var server = DotEnv.get_env("APP_SERVER")
+	if not server:
+		server = "ws://127.0.0.1:8001"
 	if ws.get_connection_status() == MultiplayerPeer.ConnectionStatus.CONNECTION_DISCONNECTED:
-		ws.create_client("ws://127.0.0.1:8000")
+		ws.create_client(server)
 
 func establish_multiplayer_networking(id):
 	rtc.create_mesh(id)

@@ -32,7 +32,7 @@ enum message {
 	#WEBRTC_EXCHANGE
 }
 
-@export var port: int = 8000
+@export var port: int = 8001
 
 var peer : WebSocketMultiplayerPeer
 var db : DAO
@@ -273,7 +273,7 @@ func start_server():
 	db = DAO.new()
 	crypto = CryptoUtils.new()
 	clients = {}
-	var server_error = peer.create_server(port)
+	var server_error = peer.create_server(port, "0.0.0.0")
 	peer.peer_connected.connect(_on_peer_connected)
 	peer.peer_disconnected.connect(_on_peer_disconnected)
 	print('starting server')
