@@ -28,6 +28,10 @@ var rtc : WebRTCMultiplayerPeer = WebRTCMultiplayerPeer.new()
 var established: bool = false
 var id = 0
 
+func _ready() -> void:
+	if CommandLine.options.has('server'):
+		set_process(false)
+
 func _process(delta: float) -> void:
 	connect_to_signaling_server()
 	ws.poll()

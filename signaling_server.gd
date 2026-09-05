@@ -40,7 +40,7 @@ var crypto : CryptoUtils
 var clients: Dictionary
 
 func _ready() -> void:
-	if "--server" in OS.get_cmdline_args():
+	if CommandLine.options.has('server'):
 		start_server()
 
 func _process(delta: float) -> void:
