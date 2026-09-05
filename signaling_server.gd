@@ -306,3 +306,5 @@ func get_git_version() -> String:
 	if config.load("res://version.cfg") == OK:
 		return config.get_value("version", "commit", "dev-local")
 	return "dev-local"
+
+	

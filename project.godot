@@ -18,6 +18,7 @@ config/name="Roll Royale"
 config/tags=PackedStringArray("3d", "multiplayer")
 run/main_scene="uid://b038pyuu1j84d"
 config/features=PackedStringArray("4.7", "GL Compatibility")
+run/flush_stdout_on_print=true
 config/icon="res://icon.svg"
 
 [autoload]
