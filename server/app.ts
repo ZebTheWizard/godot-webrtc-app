@@ -11,6 +11,7 @@ const dateFormatter = new Intl.DateTimeFormat('en-US', {
 });
 
 const server = Bun.serve({
+  hostname: "0.0.0.0",
   port: 8000,
   fetch(req, server) {
     if (server.upgrade(req)) {
@@ -26,8 +27,7 @@ const server = Bun.serve({
     },
     message(ws, message) {
       console.log(`Received: ${message}`);
-      // Echo the message back to the client
-      ws.send(`echo: ${message}`);
+      ws.send(`echo ${dateFormatter.format(startTime)}: ${message}`);
     },
     close(ws, code, message) {
       console.log("Client disconnected");
