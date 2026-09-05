@@ -15,6 +15,7 @@ func _ready() -> void:
 	
 func get_working_dir() -> String:
 	var pwd = OS.get_environment("PWD")
+	print('PWD: ', pwd)
 	if not pwd.is_empty():
 		return pwd
 	
