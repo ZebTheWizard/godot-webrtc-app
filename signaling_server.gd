@@ -295,7 +295,8 @@ func start_server():
 	db = DAO.new()
 	crypto = CryptoUtils.new()
 	clients = {}
-	var server_error = peer.create_server(port, "0.0.0.0")
+	var address = DotEnv.get_env('APP_ADDRESS')
+	var server_error = peer.create_server(port, address if address else "0.0.0.0")
 	peer.peer_connected.connect(_on_peer_connected)
 	peer.peer_disconnected.connect(_on_peer_disconnected)
 	print('starting server on port: %s, version: %s' % [port, version])
