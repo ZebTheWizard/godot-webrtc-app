@@ -42,7 +42,7 @@ func _ready() -> void:
 	if CommandLine.options.has('server'):
 		set_process(false)
 	var debug = DotEnv.get_env("APP_DEBUG")
-	server = "ws://127.0.0.1:8001" if debug else "ws://161.35.53.243:8001"
+	server = "ws://127.0.0.1:8001" if debug else "wss://wss.snowbuilds.com"
 
 func _process(_delta: float) -> void:
 	connect_to_signaling_server()
@@ -60,7 +60,7 @@ func _process(_delta: float) -> void:
 			msg.set('type', msg.get('type'))
 			msg.set('data', msg.get('data', {}))
 			
-			if msg.type == SignalingServer.message.ID:
+			if msg.type == Enum.message.ID:
 				id = msg.data.id
 				established = true
 				print('client connected to server:', CommandLine.arguments, CommandLine.options)
@@ -71,41 +71,41 @@ func _process(_delta: float) -> void:
 						'password': CommandLine.options.get('password')
 					})
 				connected.emit()
-			elif msg.type == SignalingServer.message.LOGIN_SUCCESS:
+			elif msg.type == Enum.message.LOGIN_SUCCESS:
 				login_success.emit(msg.data)
-			elif msg.type == SignalingServer.message.LOGIN_ERROR:
+			elif msg.type == Enum.message.LOGIN_ERROR:
 				login_error.emit(msg.data)
-			elif msg.type == SignalingServer.message.SIGNUP_SUCCESS:
+			elif msg.type == Enum.message.SIGNUP_SUCCESS:
 				signup_success.emit()
-			elif msg.type == SignalingServer.message.SIGNUP_ERROR:
+			elif msg.type == Enum.message.SIGNUP_ERROR:
 				signup_error.emit(msg.data)
-			elif msg.type == SignalingServer.message.MATCH_CREATE_SUCCESS:
+			elif msg.type == Enum.message.MATCH_CREATE_SUCCESS:
 				match_create_success.emit()
-			elif msg.type == SignalingServer.message.MATCH_CREATE_ERROR:
+			elif msg.type == Enum.message.MATCH_CREATE_ERROR:
 				match_create_error.emit(msg.data)
-			elif msg.type == SignalingServer.message.MATCH_LIST:
+			elif msg.type == Enum.message.MATCH_LIST:
 				matches.emit(msg.data)
-			elif msg.type == SignalingServer.message.MATCH_CONNECTED:
+			elif msg.type == Enum.message.MATCH_CONNECTED:
 				match_id = msg.data.get("id")
 				_update_host(msg.data.get('host_client_id'))
 				establish_multiplayer_networking(id)
 				match_connected.emit(msg.data)
-			elif msg.type == SignalingServer.message.MATCH_DISCONNECTED:
+			elif msg.type == Enum.message.MATCH_DISCONNECTED:
 				match_id = null
 				_update_host(-1)
 				match_disconnected.emit(msg.data)
-			elif msg.type == SignalingServer.message.LOBBY:
+			elif msg.type == Enum.message.LOBBY:
 				lobby.emit(msg.data)
-			elif msg.type == SignalingServer.message.MATCH_START:
+			elif msg.type == Enum.message.MATCH_START:
 				_on_match_start(msg.data)
-			elif msg.type == SignalingServer.message.WEBRTC_EXCHANGE:
+			elif msg.type == Enum.message.WEBRTC_EXCHANGE:
 				if rtc.has_peer(msg.data.get('origin')):
 					print("Got Candididate: " + str(msg.data.get('origin')) + " my id is " + str(id))
 					rtc.get_peer(msg.data.get('origin')).connection.add_ice_candidate(msg.data.get('mid'), msg.data.get('index'), msg.data.get('sdp'))
-			elif msg.type == SignalingServer.message.WEBRTC_OFFER:
+			elif msg.type == Enum.message.WEBRTC_OFFER:
 				if rtc.has_peer(msg.data.get('origin')):
 					rtc.get_peer(msg.data.get('origin')).connection.set_remote_description("offer", msg.data.get('rtcData'))
-			elif msg.type == SignalingServer.message.WEBRTC_ANSWER:
+			elif msg.type == Enum.message.WEBRTC_ANSWER:
 				if rtc.has_peer(msg.data.get('origin')):
 					rtc.get_peer(msg.data.get('origin')).connection.set_remote_description("answer", msg.data.get('rtcData'))
 			
@@ -118,30 +118,30 @@ func _update_host(_host_id):
 
 func create_match(data:Dictionary):
 	send_ws_message({
-		"type": SignalingServer.message.MATCH_CREATE,
+		"type": Enum.message.MATCH_CREATE,
 		'data': data
 	})
 	
 func join_match(data:Dictionary):
 	send_ws_message({
-		'type': SignalingServer.message.MATCH_JOIN,
+		'type': Enum.message.MATCH_JOIN,
 		'data': data
 	})
 	
 func leave_match(data:Dictionary):
 	send_ws_message({
-		'type': SignalingServer.message.MATCH_LEAVE,
+		'type': Enum.message.MATCH_LEAVE,
 		'data': data
 	})
 	
 func get_matches():
 	send_ws_message({
-		"type": SignalingServer.message.MATCH_LIST,
+		"type": Enum.message.MATCH_LIST,
 	})
 	
 func get_lobby(lobby_id):
 	send_ws_message({
-		"type": SignalingServer.message.LOBBY,
+		"type": Enum.message.LOBBY,
 		'data': {
 			'id': lobby_id
 		}
@@ -149,13 +149,13 @@ func get_lobby(lobby_id):
 	
 func login(data:Dictionary):
 	send_ws_message({
-		'type': SignalingServer.message.LOGIN,
+		'type': Enum.message.LOGIN,
 		'data': data,
 	})
 	
 func signup(data:Dictionary):
 	send_ws_message({
-		'type': SignalingServer.message.SIGNUP,
+		'type': Enum.message.SIGNUP,
 		'data': data,
 	})
 
@@ -173,7 +173,7 @@ func establish_multiplayer_networking(client_id):
 	
 func connect_to_rtc_peers():
 	send_ws_message({
-		'type': SignalingServer.message.MATCH_START,
+		'type': Enum.message.MATCH_START,
 		'data': {
 			'id': match_id
 		}
@@ -210,7 +210,7 @@ func _on_rtc_offer_created(type, data, client_id):
 
 func sendRtcOffer(client_id, data):
 	send_ws_message({
-		"type": SignalingServer.message.WEBRTC_OFFER,
+		"type": Enum.message.WEBRTC_OFFER,
 		"data": {
 			"peer": client_id,
 			"origin": self.id,
@@ -221,7 +221,7 @@ func sendRtcOffer(client_id, data):
 
 func sendRtcAnswer(client_id, data):
 	send_ws_message({
-		"type": SignalingServer.message.WEBRTC_ANSWER,
+		"type": Enum.message.WEBRTC_ANSWER,
 		"data": {
 			"peer": client_id,
 			"origin": self.id,
@@ -233,7 +233,7 @@ func sendRtcAnswer(client_id, data):
 func _on_rtc_ice_candidate_created(midName, indexName, sdpName, client_id):
 	print('_on_rtc_ice_candidate_created')
 	send_ws_message({
-		"type": SignalingServer.message.WEBRTC_EXCHANGE,
+		"type": Enum.message.WEBRTC_EXCHANGE,
 		"data": {
 			"peer": client_id,
 			"origin": self.id,
@@ -271,7 +271,7 @@ func _are_all_peers_connected() -> bool:
 
 func send_test_message():
 	send_ws_message({
-		"type": SignalingServer.message.TEST,
+		"type": Enum.message.TEST,
 		"data": "test client to server"
 	})
 	

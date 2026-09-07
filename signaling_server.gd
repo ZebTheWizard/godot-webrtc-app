@@ -8,30 +8,6 @@ extends Node
 # - Forward SDP answer
 # - Exchange ICE Candidates
 
-enum message {
-	TEST, # test messages
-	ID, # ws peer id
-	LOGIN,
-	LOGIN_SUCCESS,
-	LOGIN_ERROR,
-	SIGNUP,
-	SIGNUP_SUCCESS,
-	SIGNUP_ERROR,
-	MATCH_CREATE,
-	MATCH_CREATE_SUCCESS,
-	MATCH_CREATE_ERROR,
-	MATCH_LIST,
-	LOBBY,
-	MATCH_JOIN,
-	MATCH_CONNECTED,
-	MATCH_LEAVE,
-	MATCH_DISCONNECTED,
-	MATCH_START,
-	WEBRTC_OFFER,
-	WEBRTC_ANSWER,
-	WEBRTC_EXCHANGE
-}
-
 @export var port: int = 8001
 
 var peer : WebSocketMultiplayerPeer
@@ -60,23 +36,23 @@ func _process(_delta: float) -> void:
 			msg.set('id', msg.get('id', 0) as int)
 			msg.set('data', msg.get('data', {}))
 
-			if msg.type == message.MATCH_CREATE:
+			if msg.type == Enum.message.MATCH_CREATE:
 				create_match(msg.id, msg.data)
-			elif msg.type == message.MATCH_JOIN:
+			elif msg.type == Enum.message.MATCH_JOIN:
 				join_match(msg.id, msg.data)
-			elif msg.type == message.MATCH_LEAVE:
+			elif msg.type == Enum.message.MATCH_LEAVE:
 				leave_match(msg.id, msg.data)
-			elif msg.type == message.MATCH_LIST:
+			elif msg.type == Enum.message.MATCH_LIST:
 				list_matches(msg.id)
-			elif msg.type == message.LOGIN:
+			elif msg.type == Enum.message.LOGIN:
 				login(msg.id, msg.data)
-			elif msg.type == message.SIGNUP:
+			elif msg.type == Enum.message.SIGNUP:
 				signup(msg.id, msg.data)
-			elif msg.type == message.LOBBY:
+			elif msg.type == Enum.message.LOBBY:
 				get_lobby(msg.id, msg.data)
-			elif msg.type == message.MATCH_START:
+			elif msg.type == Enum.message.MATCH_START:
 				start_match(msg.id, msg.data)
-			elif msg.type == message.WEBRTC_OFFER || msg.type == message.WEBRTC_ANSWER || msg.type == message.WEBRTC_EXCHANGE:
+			elif msg.type == Enum.message.WEBRTC_OFFER || msg.type == Enum.message.WEBRTC_ANSWER || msg.type == Enum.message.WEBRTC_EXCHANGE:
 				send_message_to(msg.data.get('peer'), {
 					'type': msg.type,
 					'data': msg.data
@@ -97,7 +73,7 @@ func create_match(client_id, data):
 
 	if not error.is_empty():
 		return send_message_to(client_id, {
-			'type': message.MATCH_CREATE_ERROR,
+			'type': Enum.message.MATCH_CREATE_ERROR,
 			'data': error
 		})
 
@@ -115,12 +91,12 @@ func create_match(client_id, data):
 	})
 
 	send_message({
-		'type': message.MATCH_LIST,
+		'type': Enum.message.MATCH_LIST,
 		'data': db.get_matches()
 	})
 
 	send_message_to(client_id, {
-		'type': message.MATCH_CONNECTED,
+		'type': Enum.message.MATCH_CONNECTED,
 		'data': GD_.omit(_match, ['password'])
 	})
 
@@ -133,14 +109,14 @@ func join_match(client_id, data):
 		})
 
 		send_message_to(client_id, {
-			'type': message.MATCH_CONNECTED,
+			'type': Enum.message.MATCH_CONNECTED,
 			'data': GD_.omit(_match, ['password'])
 		})
 
 		var players = db.get_players_by_match_id(_match.get('id'))
 		for p in players:
 			send_message_to(p.get('client_id'), {
-				'type': message.LOBBY,
+				'type': Enum.message.LOBBY,
 				'data': players
 			})
 
@@ -151,7 +127,7 @@ func leave_match(client_id, _data):
 		if player.get('is_host'):
 			db.delete_match_by_id(player.get('match_id'))
 			send_message({
-				'type': message.MATCH_LIST,
+				'type': Enum.message.MATCH_LIST,
 				'data': db.get_matches()
 			})
 			db.update_player_by_client_id(client_id, {
@@ -162,7 +138,7 @@ func leave_match(client_id, _data):
 				if p.get('client_id') != client_id:
 					disconnect_data.set('message', 'The host has left the match.')
 				send_message_to(p.get('client_id'), {
-					'type': message.MATCH_DISCONNECTED,
+					'type': Enum.message.MATCH_DISCONNECTED,
 					'data': disconnect_data
 				})
 		else:
@@ -172,14 +148,14 @@ func leave_match(client_id, _data):
 			})
 
 			send_message_to(client_id, {
-				'type': message.MATCH_DISCONNECTED,
+				'type': Enum.message.MATCH_DISCONNECTED,
 			})
 
 			for p in players:
 				if p.get('client_id') == client_id:
 					continue
 				send_message_to(p.get('client_id'), {
-					'type': message.LOBBY,
+					'type': Enum.message.LOBBY,
 					'data': players
 				})
 
@@ -191,19 +167,19 @@ func start_match(client_id, data):
 		for player in players:
 			var peers = players.filter(func(p): return p.get('client_id') != player.get('client_id'))
 			send_message_to(player.get('client_id'), {
-				'type': message.MATCH_START,
+				'type': Enum.message.MATCH_START,
 				'data': peers
 			})
 
 func list_matches(client_id):
 	send_message_to(client_id, {
-		'type': message.MATCH_LIST,
+		'type': Enum.message.MATCH_LIST,
 		'data': db.get_matches()
 	})
 
 func get_lobby(client_id, data):
 	send_message_to(client_id, {
-		'type': message.LOBBY,
+		'type': Enum.message.LOBBY,
 		'data': db.get_players_by_match_id(data.get('id'))
 	})
 
@@ -226,7 +202,7 @@ func login(client_id, data):
 			#error.password = 'Invalid username or password'
 	if not error.is_empty():
 		return send_message_to(client_id,{
-			'type': message.LOGIN_ERROR,
+			'type': Enum.message.LOGIN_ERROR,
 			'data': error
 		})
 
@@ -237,7 +213,7 @@ func login(client_id, data):
 	player = db.get_player_by_client_id(client_id)
 
 	send_message_to(client_id,{
-		'type': message.LOGIN_SUCCESS,
+		'type': Enum.message.LOGIN_SUCCESS,
 		'data': GD_.omit(player, ['password'])
 	})
 
@@ -258,7 +234,7 @@ func signup(client_id, data):
 		error.password = "Password must be at least 8 characters"
 	if not error.is_empty():
 		return send_message_to(client_id,{
-			'type': message.SIGNUP_ERROR,
+			'type': Enum.message.SIGNUP_ERROR,
 			'data': error
 		})
 	var new_player = db.insert_player({
@@ -268,14 +244,14 @@ func signup(client_id, data):
 	})
 	if new_player:
 		send_message_to(client_id, {
-			'type': message.SIGNUP_SUCCESS
+			'type': Enum.message.SIGNUP_SUCCESS
 		})
 
 func _on_peer_connected(id):
 	print('peer connected: %s' % id)
 	clients.set(id as int, id)
 	send_message_to(id, {
-		"type": message.ID,
+		"type": Enum.message.ID,
 		"data": {
 			"id": id
 		}
@@ -314,7 +290,7 @@ func send_message(json:Dictionary):
 
 func send_test_message():
 	send_message({
-		"type": message.TEST,
+		"type": Enum.message.TEST,
 		"data": "test server to client"
 	})
 
