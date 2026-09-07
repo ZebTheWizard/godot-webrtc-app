@@ -90,5 +90,5 @@ func bind_text(value):
 	if is_node_ready() and _input and _input.text != value:
 		_input.text = value
 
-func _is_empty(str:String):
-	return str.strip_edges() == "" or str == null
+func _is_empty(value:String):
+	return value.strip_edges() == "" or value == null

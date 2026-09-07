@@ -17,6 +17,7 @@ func _mount(data:Dictionary):
 	Client.get_lobby(data.get('id'))
 	Client.lobby.connect(_on_lobby_ready)
 	Client.match_disconnected.connect(_on_match_disconnect)
+	Client.webrtc_established.connect(_on_webrtc_established)
 
 func refresh_players():
 	players = players_buffer
@@ -34,13 +35,21 @@ func _on_match_disconnect(data:Dictionary):
 		print('MATCH DISCONNECT: ', data)
 
 
-func _on_lobby_ready(players:Array):
-	players_buffer = players
-	if auto_refresh or self.players.is_empty():
+func _on_lobby_ready(new_players:Array):
+	players_buffer = new_players
+	if auto_refresh or players.is_empty():
 		refresh_players()
 
+func _on_webrtc_established():
+	start_game.rpc()
+	
+@rpc('authority', 'call_local', 'reliable')
+func start_game():
+	print('match should be starting for: ', multiplayer.get_unique_id(), ' message from: ', multiplayer.get_remote_sender_id())
+	navigate_to('test')
+
 func _on_start_pressed():
-	print('start pressed')
+	Client.connect_to_rtc_peers()
 
 func _on_leave_pressed():
 	Client.leave_match({

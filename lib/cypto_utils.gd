@@ -13,9 +13,9 @@ func HashPassword(password):
 	var hashContext = HashingContext.new()
 	hashContext.start(HashingContext.HASH_SHA256)
 	hashContext.update(combinedData)
-	var hash = hashContext.finish()
+	var hashStr = hashContext.finish()
 
-	return hash.hex_encode()
+	return hashStr.hex_encode()
 
 func GenerateUUID() -> String:
 	var crypto = Crypto.new()

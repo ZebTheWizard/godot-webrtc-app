@@ -13,17 +13,17 @@ var routes = {
 
 var parent_page: Page
 var mounted: bool = false
-var _data: Dictionary
+var _page_data: Dictionary
 
 func _ready() -> void:
-	_initialize(_data)
+	_initialize(_page_data)
 
 func _initialize(data:Dictionary={}):
 	if not mounted:
 		_mount(data)
 	mounted = true
 
-func _mount(data:Dictionary):
+func _mount(_data:Dictionary):
 	pass
 	
 func navigate_to(routeName:String, data:Dictionary={}):
@@ -33,7 +33,7 @@ func navigate_to(routeName:String, data:Dictionary={}):
 		var page = page_scene.instantiate()
 		
 		if page is Page:
-			page._data = data
+			page._page_data = data
 			page.parent_page = self.parent_page
 			get_parent().add_child(page)
 			queue_free()
@@ -49,7 +49,7 @@ func open_page(routeName:String, data:Dictionary={}):
 		var page = page_scene.instantiate()
 		
 		if page is Page:
-			page._data = data
+			page._page_data = data
 			page.parent_page = self
 			get_parent().add_child(page)
 		else:

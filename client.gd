@@ -22,19 +22,32 @@ signal match_create_error(error:Dictionary)
 signal match_connected(_match:Dictionary)
 signal match_disconnected(data:Dictionary)
 signal lobby(players:Dictionary)
+signal webrtc_established
 
 var ws : WebSocketMultiplayerPeer = WebSocketMultiplayerPeer.new()
 var rtc : WebRTCMultiplayerPeer = WebRTCMultiplayerPeer.new()
 var established: bool = false
 var id = 0
+var match_id
+var host_id = -1
+var server
+
+func _enter_tree() -> void:
+	get_tree().node_added.connect(_on_node_entered_tree)
+
+func _on_node_entered_tree(node: Node):
+	node.set_multiplayer_authority(host_id)
 
 func _ready() -> void:
 	if CommandLine.options.has('server'):
 		set_process(false)
+	var debug = DotEnv.get_env("APP_DEBUG")
+	server = "ws://127.0.0.1:8001" if debug else "ws://161.35.53.243:8001"
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	connect_to_signaling_server()
 	ws.poll()
+	rtc.poll()
 	if ws.get_available_packet_count() > 0:
 		var packet = ws.get_packet()
 		if packet != null:
@@ -48,7 +61,6 @@ func _process(delta: float) -> void:
 			msg.set('data', msg.get('data', {}))
 			
 			if msg.type == SignalingServer.message.ID:
-				establish_multiplayer_networking(msg.data.id)
 				id = msg.data.id
 				established = true
 				print('client connected to server:', CommandLine.arguments, CommandLine.options)
@@ -74,13 +86,35 @@ func _process(delta: float) -> void:
 			elif msg.type == SignalingServer.message.MATCH_LIST:
 				matches.emit(msg.data)
 			elif msg.type == SignalingServer.message.MATCH_CONNECTED:
+				match_id = msg.data.get("id")
+				_update_host(msg.data.get('host_client_id'))
+				establish_multiplayer_networking(id)
 				match_connected.emit(msg.data)
 			elif msg.type == SignalingServer.message.MATCH_DISCONNECTED:
+				match_id = null
+				_update_host(-1)
 				match_disconnected.emit(msg.data)
 			elif msg.type == SignalingServer.message.LOBBY:
 				lobby.emit(msg.data)
+			elif msg.type == SignalingServer.message.MATCH_START:
+				_on_match_start(msg.data)
+			elif msg.type == SignalingServer.message.WEBRTC_EXCHANGE:
+				if rtc.has_peer(msg.data.get('origin')):
+					print("Got Candididate: " + str(msg.data.get('origin')) + " my id is " + str(id))
+					rtc.get_peer(msg.data.get('origin')).connection.add_ice_candidate(msg.data.get('mid'), msg.data.get('index'), msg.data.get('sdp'))
+			elif msg.type == SignalingServer.message.WEBRTC_OFFER:
+				if rtc.has_peer(msg.data.get('origin')):
+					rtc.get_peer(msg.data.get('origin')).connection.set_remote_description("offer", msg.data.get('rtcData'))
+			elif msg.type == SignalingServer.message.WEBRTC_ANSWER:
+				if rtc.has_peer(msg.data.get('origin')):
+					rtc.get_peer(msg.data.get('origin')).connection.set_remote_description("answer", msg.data.get('rtcData'))
+			
 			else:
 				print(msg)
+
+func _update_host(_host_id):
+	host_id = _host_id
+	get_window().set_multiplayer_authority(host_id, true)
 
 func create_match(data:Dictionary):
 	send_ws_message({
@@ -105,11 +139,11 @@ func get_matches():
 		"type": SignalingServer.message.MATCH_LIST,
 	})
 	
-func get_lobby(id):
+func get_lobby(lobby_id):
 	send_ws_message({
 		"type": SignalingServer.message.LOBBY,
 		'data': {
-			'id': id
+			'id': lobby_id
 		}
 	})
 	
@@ -126,17 +160,115 @@ func signup(data:Dictionary):
 	})
 
 func connect_to_signaling_server():
-	var server = DotEnv.get_env("APP_SERVER")
-	if not server:
-		server = "ws://127.0.0.1:8001"
 	if ws.get_connection_status() == MultiplayerPeer.ConnectionStatus.CONNECTION_DISCONNECTED:
 		ws.create_client(server)
 
-func establish_multiplayer_networking(id):
-	rtc.create_mesh(id)
+func establish_multiplayer_networking(client_id):
+	rtc.create_mesh(client_id)
 	multiplayer.multiplayer_peer = rtc
+	print('====set_multiplayer_autority: ', host_id as int)
+	multiplayer.peer_connected.connect(_on_rtc_connected)
+	multiplayer.peer_disconnected.connect(_on_rtc_disconnected)
 	print('established multiplayer network strategy')
 	
+func connect_to_rtc_peers():
+	send_ws_message({
+		'type': SignalingServer.message.MATCH_START,
+		'data': {
+			'id': match_id
+		}
+	})
+	
+	
+func _on_match_start(peers):	
+	for peer in peers:
+		create_peer(peer.get('client_id'), peer.get('is_host'))
+		
+func create_peer(client_id, peer_is_host):
+	var peer : WebRTCPeerConnection = WebRTCPeerConnection.new()
+	peer.initialize({
+		"iceServers" : [{ "urls": ["stun:stun.l.google.com:19302"] }]
+	})
+	
+	peer.session_description_created.connect(_on_rtc_offer_created.bind(client_id))
+	peer.ice_candidate_created.connect(_on_rtc_ice_candidate_created.bind(client_id))
+	rtc.add_peer(peer, client_id)
+	if not peer_is_host:
+		peer.create_offer()
+	
+func _on_rtc_offer_created(type, data, client_id):
+	print('_on_rtc_offer_created')
+	if !rtc.has_peer(client_id):
+		return
+		
+	rtc.get_peer(client_id).connection.set_local_description(type, data)
+	
+	if type == "offer":
+		sendRtcOffer(client_id, data)
+	else:
+		sendRtcAnswer(client_id, data)
+
+func sendRtcOffer(client_id, data):
+	send_ws_message({
+		"type": SignalingServer.message.WEBRTC_OFFER,
+		"data": {
+			"peer": client_id,
+			"origin": self.id,
+			"rtcData": data,
+			"match_id": match_id,
+		}
+	})
+
+func sendRtcAnswer(client_id, data):
+	send_ws_message({
+		"type": SignalingServer.message.WEBRTC_ANSWER,
+		"data": {
+			"peer": client_id,
+			"origin": self.id,
+			"rtcData": data,
+			"match_id": match_id,
+		}
+	})
+
+func _on_rtc_ice_candidate_created(midName, indexName, sdpName, client_id):
+	print('_on_rtc_ice_candidate_created')
+	send_ws_message({
+		"type": SignalingServer.message.WEBRTC_EXCHANGE,
+		"data": {
+			"peer": client_id,
+			"origin": self.id,
+			"mid": midName,
+			"index": indexName,
+			"sdp": sdpName,
+			"match_id": match_id,
+		}
+	})
+
+func _on_rtc_connected(_client_id):
+	print('===_on_rtc_connected: ', _client_id, ' ', get_multiplayer_authority())
+	if not is_multiplayer_authority():
+		return
+	print('===== rtc connected as server: ', _client_id)
+	if _are_all_peers_connected():
+		print('======all peers connected')
+		webrtc_established.emit()
+
+func _on_rtc_disconnected(_client_id):
+	pass
+	
+func _are_all_peers_connected() -> bool:
+	var peers = rtc.get_peers()
+	
+	if peers.is_empty():
+		return false
+		
+	for peer_id in peers:
+		var connection = peers[peer_id].connection
+		if connection.get_connection_state() != WebRTCPeerConnection.STATE_CONNECTED:
+			return false
+			
+	return true
+
 func send_test_message():
 	send_ws_message({
 		"type": SignalingServer.message.TEST,

@@ -14,7 +14,7 @@ var auto_refresh = false
 var matches_buffer: Array
 var matches:Array
 
-func _mount(data:Dictionary):
+func _mount(_data:Dictionary):
 	bind_visibility()
 	_auto_refresh.button_pressed = false
 	_auto_refresh.toggled.connect(_on_auto_refresh_change)
@@ -67,10 +67,10 @@ func _on_auto_refresh_change(value:bool):
 func _on_refresh_pressed():
 	refresh_matches()
 
-func _on_matches_changed(matches: Array):
-	matches_buffer = matches
-	if auto_refresh or self.matches.is_empty():
+func _on_matches_changed(new_matches: Array):
+	matches_buffer = new_matches
+	if auto_refresh or matches.is_empty():
 		refresh_matches()
 
-func _on_match_connected(_match:Dictionary):
-	navigate_to('lobby', _match)
+func _on_match_connected(match_data:Dictionary):
+	navigate_to('lobby', match_data)

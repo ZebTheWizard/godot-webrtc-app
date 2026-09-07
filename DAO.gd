@@ -36,7 +36,9 @@ func _init() -> void:
 	    password TEXT,
 	    map TEXT,
 	    status TEXT,
-	    type TEXT
+	    type TEXT,
+		host_id NOT NULL,
+		FOREIGN KEY (host_id) REFERENCES players(id) ON DELETE CASCADE
 	);
 	"""
 
@@ -56,8 +58,10 @@ func _init() -> void:
 	db.query(matches_query)
 	db.query(players_query)
 
+	db.query('DELETE FROM matches')
 	db.query("SELECT COUNT(*) as count FROM players")
 	if db.query_result and db.query_result.get(0).get('count') == 0:
+		print('should be inserting players!')
 		insert_player({'username': 'john', 'password': crypto.HashPassword('password')})
 		insert_player({'username': 'bob', 'password': crypto.HashPassword('password')})
 		insert_player({'username': 'frank', 'password': crypto.HashPassword('password')})
@@ -71,7 +75,8 @@ func insert_match(data:Dictionary = {}):
 		"password": data.get("password"),
 		'map': data.get("map", map.DEFAULT),
 		"status": data.get("status", match_status.MATCHING),
-		"type": data.get("type", match_type.FFA)
+		"type": data.get("type", match_type.FFA),
+		"host_id": data.get("host_id"),
 	})
 
 	return get_match_by_id(id)
@@ -91,39 +96,39 @@ func insert_player(data:Dictionary = {}):
 	return get_player_by_id(id)
 
 func get_match_by_id(id:String):
-	var query = "SELECT * from matches where id = ?"
+	var query = "SELECT players.client_id as host_client_id, matches.* FROM matches JOIN players ON players.id = matches.host_id WHERE matches.id = ?"
 	var paramBindings = [id]
 	db.query_with_bindings(query, paramBindings)
 	for result in db.query_result:
 		return result
 
 func get_players_by_match_id(id:String):
-	var query = "SELECT * from players where match_id = ?"
+	var query = "SELECT * FROM players WHERE match_id = ?"
 	var paramBindings = [id]
 	db.query_with_bindings(query, paramBindings)
 	return db.query_result
 
 func get_matches():
-	var query = "SELECT * from matches ORDER BY name"
+	var query = "SELECT * FROM matches ORDER BY name"
 	db.query_with_bindings(query, [])
 	return db.query_result
 
 func get_player_by_id(id:String):
-	var query = "SELECT * from players where id = ?"
+	var query = "SELECT * FROM players WHERE id = ?"
 	var paramBindings = [id]
 	db.query_with_bindings(query, paramBindings)
 	for result in db.query_result:
 		return result
 
 func get_player_by_client_id(id:int):
-	var query = "SELECT * from players where client_id = ?"
+	var query = "SELECT * FROM players WHERE client_id = ?"
 	var paramBindings = [id]
 	db.query_with_bindings(query, paramBindings)
 	for result in db.query_result:
 		return result
 
 func get_player_by_username(username:String):
-	var query = "SELECT * from players where username = ?"
+	var query = "SELECT * FROM players WHERE username = ?"
 	var paramBindings = [username]
 	db.query_with_bindings(query, paramBindings)
 	for result in db.query_result:
@@ -152,7 +157,6 @@ func _update_with_bindings(table:String, condition:String, data:Dictionary, cond
 	return db.query_with_bindings(query_string, bindings)
 
 func _delete_with_bindings(table:String, condition:String, condition_bindings:Array):
-	var set_clauses : Array = []
 	var bindings : Array = []
 
 	bindings.append_array(condition_bindings)

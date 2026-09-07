@@ -5,7 +5,7 @@ extends Page
 @onready var _username = $"%Username"
 @onready var _password = $"%Password"
 
-func _mount(data:Dictionary):
+func _mount(_data:Dictionary):
 	bind_visibility()
 	_submit.pressed.connect(_on_submit_pressed)
 	_sign_up.pressed.connect(_on_sign_up_pressed)
@@ -22,7 +22,7 @@ func _on_submit_pressed():
 func _on_connected():
 	bind_visibility()
 	
-func _on_login_success(player: Dictionary):
+func _on_login_success(_player: Dictionary):
 	navigate_to('matches')
 	
 func _on_login_error(error):

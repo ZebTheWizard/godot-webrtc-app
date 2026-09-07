@@ -30,6 +30,11 @@ SignalingServer="*uid://dey4k0r64ilkt"
 Server="*uid://ctdgao6rt4s3c"
 GD_="*uid://bkkcxcqheocke"
 
+[display]
+
+window/stretch/mode="canvas_items"
+window/stretch/aspect="keep_width"
+
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/dotenv/plugin.cfg", "res://addons/godot-sqlite/plugin.cfg", "res://addons/version_exporter/plugin.cfg")

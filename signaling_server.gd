@@ -26,10 +26,10 @@ enum message {
 	MATCH_CONNECTED,
 	MATCH_LEAVE,
 	MATCH_DISCONNECTED,
-	#MATCH_INFO,
-	#WEBRTC_OFFER,
-	#WEBRTC_ANSWER,
-	#WEBRTC_EXCHANGE
+	MATCH_START,
+	WEBRTC_OFFER,
+	WEBRTC_ANSWER,
+	WEBRTC_EXCHANGE
 }
 
 @export var port: int = 8001
@@ -43,7 +43,7 @@ func _ready() -> void:
 	if CommandLine.options.has('server'):
 		start_server()
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if not peer or not db:
 		return
 	peer.poll()
@@ -74,13 +74,20 @@ func _process(delta: float) -> void:
 				signup(msg.id, msg.data)
 			elif msg.type == message.LOBBY:
 				get_lobby(msg.id, msg.data)
+			elif msg.type == message.MATCH_START:
+				start_match(msg.id, msg.data)
+			elif msg.type == message.WEBRTC_OFFER || msg.type == message.WEBRTC_ANSWER || msg.type == message.WEBRTC_EXCHANGE:
+				send_message_to(msg.data.get('peer'), {
+					'type': msg.type,
+					'data': msg.data
+				})
 			else:
 				print(msg)
 
 func create_match(client_id, data):
 	var error = {}
-	var name = data.get('name', '').strip_edges()
-	if len(name) < 3:
+	var match_name = data.get('name', '').strip_edges()
+	if len(match_name) < 3:
 		error.name = "Match name must be at least 3 characters."
 	if data.get('map') not in db.map:
 		error.map = "Unknown map"
@@ -89,16 +96,16 @@ func create_match(client_id, data):
 		error.general = "Player %s not found." % client_id
 
 	if not error.is_empty():
-
 		return send_message_to(client_id, {
 			'type': message.MATCH_CREATE_ERROR,
 			'data': error
 		})
 
 	var _match = db.insert_match({
-		'name': name,
+		'name': match_name,
 		'map': data.get('map'),
-		'password': crypto.HashPassword(data.get('password'))
+		'password': crypto.HashPassword(data.get('password')),
+		'host_id': player.get('id')
 	})
 
 	db.update_player_by_client_id(player.get('client_id'), {
@@ -137,7 +144,7 @@ func join_match(client_id, data):
 				'data': players
 			})
 
-func leave_match(client_id, data):
+func leave_match(client_id, _data):
 	var player = db.get_player_by_client_id(client_id)
 	if player:
 		var players = db.get_players_by_match_id(player.get('match_id'))
@@ -177,7 +184,16 @@ func leave_match(client_id, data):
 				})
 
 
-
+func start_match(client_id, data):
+	var players:Array = db.get_players_by_match_id(data.get('id'))
+	var host = players.filter(func (p): return p.get('is_host')).get(0)
+	if host.get('client_id') == client_id:
+		for player in players:
+			var peers = players.filter(func(p): return p.get('client_id') != player.get('client_id'))
+			send_message_to(player.get('client_id'), {
+				'type': message.MATCH_START,
+				'data': peers
+			})
 
 func list_matches(client_id):
 	send_message_to(client_id, {
@@ -245,12 +261,12 @@ func signup(client_id, data):
 			'type': message.SIGNUP_ERROR,
 			'data': error
 		})
-	var player = db.insert_player({
+	var new_player = db.insert_player({
 		'username': username,
 		'password': crypto.HashPassword(data.get('password')),
 		'client_id': client_id
 	})
-	if player:
+	if new_player:
 		send_message_to(client_id, {
 			'type': message.SIGNUP_SUCCESS
 		})
@@ -288,12 +304,12 @@ func start_server():
 	print("APP_KEY=%s" % salt)
 	return server_error == 0
 
-func send_message_to(id:int, message:Dictionary):
-	print("server to %s: %s" % [id, message])
-	peer.get_peer(id).put_packet(JSON.stringify(message).to_utf8_buffer())
+func send_message_to(id:int, json:Dictionary):
+	print("server to %s: %s" % [id, json])
+	peer.get_peer(id).put_packet(JSON.stringify(json).to_utf8_buffer())
 
-func send_message(message:Dictionary):
-	peer.put_packet(JSON.stringify(message).to_utf8_buffer())
+func send_message(json:Dictionary):
+	peer.put_packet(JSON.stringify(json).to_utf8_buffer())
 
 func send_test_message():
 	send_message({
