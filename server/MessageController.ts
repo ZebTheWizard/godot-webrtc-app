@@ -241,11 +241,18 @@ export class MessageController extends Controller {
 
   async relayWebRTC(req: Request) {
     const schema = z.object({
-      peer: z.number()
+      peer: z.number(),
+      match_id: z.uuidv4()
     })
 
     const validated = await this.validate(schema, req.data)
 
-    this.emitTo(validated.peer, req)
+    const match = await this.db.getMatchById(validated.match_id)
+
+    if (!match) return
+
+    const peer_id = validated.peer === 1 ? match.host_client_id : validated.peer
+
+    this.emitTo(peer_id, req)
   }
 }

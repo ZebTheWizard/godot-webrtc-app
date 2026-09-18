@@ -21,6 +21,7 @@ export type Match = {
   status: match_status
   type: match_type
   host_id: string,
+  host_client_id: number,
 }
 
 export class DAO {

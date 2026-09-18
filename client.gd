@@ -1,16 +1,5 @@
 extends Node
 
-# TODO:
-# - Create WebRTCMultiplayerPeer
-# - Create peer mesh using id from signaling server
-# - Link godot's multiplayer api to webrtc
-# - Setup WebRTC peer connection
-#   - Intialize ice servers
-#   - Setup event listeners
-#   - Add peer
-#   - If host: make offer
-#   - If peer: make answer?
-
 signal connected
 signal error(error:Dictionary)
 signal login_success(player:Dictionary)
@@ -26,15 +15,9 @@ var ws : WebSocketPeer = WebSocketPeer.new()
 var rtc : WebRTCMultiplayerPeer = WebRTCMultiplayerPeer.new()
 var established: bool = false
 var id = 0
+var rtc_id = 0
 var match_id
-var host_id = -1
 var server
-
-func _enter_tree() -> void:
-	get_tree().node_added.connect(_on_node_entered_tree)
-
-func _on_node_entered_tree(node: Node):
-	node.set_multiplayer_authority(host_id)
 
 func _ready() -> void:
 	if CommandLine.options.has('server'):
@@ -61,9 +44,8 @@ func _process(_delta: float) -> void:
 			if msg.type == Enum.message.ID:
 				id = msg.data.id
 				established = true
-				print('client connected to server:', CommandLine.arguments, CommandLine.options)
+				print('Client %s connected to server' % id)
 				if CommandLine.options.has('username'):
-					print('needs to login from cli')
 					login({
 						'username': CommandLine.options.get('username'),
 						'password': CommandLine.options.get('password')
@@ -81,12 +63,11 @@ func _process(_delta: float) -> void:
 				matches.emit(msg.data)
 			elif msg.type == Enum.message.MATCH_CONNECTED:
 				match_id = msg.data.get("id")
-				_update_host(msg.data.get('host_client_id'))
-				establish_multiplayer_networking(id)
+				rtc_id = 1 if id == msg.data.get('host_client_id') else id
+				establish_multiplayer_networking(rtc_id)
 				match_connected.emit(msg.data)
 			elif msg.type == Enum.message.MATCH_DISCONNECTED:
 				match_id = null
-				_update_host(-1)
 				match_disconnected.emit(msg.data)
 			elif msg.type == Enum.message.LOBBY:
 				lobby.emit(msg.data)
@@ -94,7 +75,7 @@ func _process(_delta: float) -> void:
 				_on_match_start(msg.data)
 			elif msg.type == Enum.message.WEBRTC_EXCHANGE:
 				if rtc.has_peer(msg.data.get('origin')):
-					print("Got Candididate: " + str(msg.data.get('origin')) + " my id is " + str(id))
+					print("Got WebRTC Candididate: peer: %s, rtc_id: %s" % [msg.data.get('origin'), rtc_id])
 					rtc.get_peer(msg.data.get('origin')).connection.add_ice_candidate(msg.data.get('mid'), msg.data.get('index'), msg.data.get('sdp'))
 			elif msg.type == Enum.message.WEBRTC_OFFER:
 				if rtc.has_peer(msg.data.get('origin')):
@@ -105,10 +86,6 @@ func _process(_delta: float) -> void:
 			
 			else:
 				print(msg)
-
-func _update_host(_host_id):
-	host_id = _host_id
-	get_window().set_multiplayer_authority(host_id, true)
 
 func create_match(data:Dictionary):
 	send_ws_message({
@@ -161,10 +138,8 @@ func connect_to_signaling_server():
 func establish_multiplayer_networking(client_id):
 	rtc.create_mesh(client_id)
 	multiplayer.multiplayer_peer = rtc
-	print('====set_multiplayer_autority: ', host_id as int)
 	multiplayer.peer_connected.connect(_on_rtc_connected)
 	multiplayer.peer_disconnected.connect(_on_rtc_disconnected)
-	print('established multiplayer network strategy')
 	
 func connect_to_rtc_peers():
 	send_ws_message({
@@ -177,7 +152,8 @@ func connect_to_rtc_peers():
 	
 func _on_match_start(peers):	
 	for peer in peers:
-		create_peer(peer.get('client_id'), peer.get('is_host'))
+		var peer_rtc_id = 1 if peer.get('is_host') else peer.get('client_id')
+		create_peer(peer_rtc_id, peer.get('is_host'))
 		
 func create_peer(client_id, peer_is_host):
 	var peer : WebRTCPeerConnection = WebRTCPeerConnection.new()
@@ -188,11 +164,11 @@ func create_peer(client_id, peer_is_host):
 	peer.session_description_created.connect(_on_rtc_offer_created.bind(client_id))
 	peer.ice_candidate_created.connect(_on_rtc_ice_candidate_created.bind(client_id))
 	rtc.add_peer(peer, client_id)
+
 	if not peer_is_host:
 		peer.create_offer()
 	
 func _on_rtc_offer_created(type, data, client_id):
-	print('_on_rtc_offer_created')
 	if !rtc.has_peer(client_id):
 		return
 		
@@ -208,7 +184,7 @@ func sendRtcOffer(client_id, data):
 		"type": Enum.message.WEBRTC_OFFER,
 		"data": {
 			"peer": client_id,
-			"origin": self.id,
+			"origin": self.rtc_id,
 			"rtcData": data,
 			"match_id": match_id,
 		}
@@ -219,19 +195,18 @@ func sendRtcAnswer(client_id, data):
 		"type": Enum.message.WEBRTC_ANSWER,
 		"data": {
 			"peer": client_id,
-			"origin": self.id,
+			"origin": self.rtc_id,
 			"rtcData": data,
 			"match_id": match_id,
 		}
 	})
 
 func _on_rtc_ice_candidate_created(midName, indexName, sdpName, client_id):
-	print('_on_rtc_ice_candidate_created')
 	send_ws_message({
 		"type": Enum.message.WEBRTC_EXCHANGE,
 		"data": {
 			"peer": client_id,
-			"origin": self.id,
+			"origin": self.rtc_id,
 			"mid": midName,
 			"index": indexName,
 			"sdp": sdpName,
@@ -239,16 +214,13 @@ func _on_rtc_ice_candidate_created(midName, indexName, sdpName, client_id):
 		}
 	})
 
-func _on_rtc_connected(_client_id):
-	print('===_on_rtc_connected: ', _client_id, ' ', get_multiplayer_authority())
-	if not is_multiplayer_authority():
+func _on_rtc_connected(_peer_id):
+	if not multiplayer.is_server():
 		return
-	print('===== rtc connected as server: ', _client_id)
 	if _are_all_peers_connected():
-		print('======all peers connected')
 		webrtc_established.emit()
 
-func _on_rtc_disconnected(_client_id):
+func _on_rtc_disconnected(_peer_id):
 	pass
 	
 func _are_all_peers_connected() -> bool:
@@ -267,5 +239,4 @@ func _are_all_peers_connected() -> bool:
 	
 func send_ws_message(message: Dictionary):
 	message.set('id', id)
-	print('client sending:', message)
 	ws.put_packet(JSON.stringify(message).to_utf8_buffer())

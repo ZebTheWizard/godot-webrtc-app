@@ -1,5 +1,5 @@
 import { dateFormatter, startTime } from "./util";
-import { message as messageType } from "./enum";
+import { message, message as messageType } from "./enum";
 import { MessageController } from "./MessageController";
 import type { DAO, Player } from "./DAO";
 import { ValidationError } from "./ValidationError";
@@ -134,17 +134,22 @@ export default class App {
     delete clients[this.id]
   }
 
+  private humanMessage(json: any):string {
+    json.type = message[json.type]
+    return JSON.stringify(json)
+  }
+
   emit(json:any) {
     const jsonString = JSON.stringify(json);
     const buffer = new TextEncoder().encode(jsonString);
-    console.log(`emitting to ${this.id}: ${jsonString}`)
+    console.log(`emitting to ${this.id}: ${this.humanMessage(json)}`)
     this.ws.send(buffer)
   }
 
   broadcast(json: any) {
     const jsonString = JSON.stringify(json);
     const buffer = new TextEncoder().encode(jsonString);
-    console.log(`broadcasting: ${jsonString}`)
+    console.log(`broadcasting: ${this.humanMessage(json)}`)
     for (const client of Object.values(clients)) {
       client.send(buffer)
     }
@@ -153,11 +158,11 @@ export default class App {
   emitTo(clientId: number, json: any) {
     const client: WebSocket = clients[clientId]
     if (typeof client === 'undefined') {
-      throw new Error(`Could not find client with id of ${client_id}`)
+      throw new Error(`Could not find client with id of ${clientId}`)
     }
     const jsonString = JSON.stringify(json);
     const buffer = new TextEncoder().encode(jsonString);
-    console.log(`emitting to ${clientId}: ${jsonString}`)
+    console.log(`emitting to ${clientId}: ${this.humanMessage(json)}`)
     client.send(buffer)
   }
 }
