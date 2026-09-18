@@ -12,7 +12,7 @@ func _mount(data:Dictionary):
 	_login.pressed.connect(_on_login_pressed)
 	Client.connected.connect(_on_connected)
 	Client.signup_success.connect(_on_signup_success)
-	Client.signup_error.connect(_on_signup_error)
+	Client.error.connect(_on_signup_error)
 
 func _on_connected():
 	bind_visibility()

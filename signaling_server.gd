@@ -73,7 +73,7 @@ func create_match(client_id, data):
 
 	if not error.is_empty():
 		return send_message_to(client_id, {
-			'type': Enum.message.MATCH_CREATE_ERROR,
+			'type': Enum.message.ERROR,
 			'data': error
 		})
 
@@ -202,7 +202,7 @@ func login(client_id, data):
 			#error.password = 'Invalid username or password'
 	if not error.is_empty():
 		return send_message_to(client_id,{
-			'type': Enum.message.LOGIN_ERROR,
+			'type': Enum.message.ERROR,
 			'data': error
 		})
 
@@ -234,7 +234,7 @@ func signup(client_id, data):
 		error.password = "Password must be at least 8 characters"
 	if not error.is_empty():
 		return send_message_to(client_id,{
-			'type': Enum.message.SIGNUP_ERROR,
+			'type': Enum.message.ERROR,
 			'data': error
 		})
 	var new_player = db.insert_player({
@@ -288,11 +288,11 @@ func send_message_to(id:int, json:Dictionary):
 func send_message(json:Dictionary):
 	peer.put_packet(JSON.stringify(json).to_utf8_buffer())
 
-func send_test_message():
-	send_message({
-		"type": Enum.message.TEST,
-		"data": "test server to client"
-	})
+#func send_test_message():
+	#send_message({
+		#"type": Enum.message.TEST,
+		#"data": "test server to client"
+	#})
 
 func get_git_version() -> String:
 	var config = ConfigFile.new()

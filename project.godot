@@ -26,7 +26,7 @@ config/icon="res://icon.svg"
 CommandLine="*uid://cy8um4bl2tlif"
 DotEnv="*uid://b3yktbv0hmq2v"
 Client="*uid://bax4w2nw05nny"
-SignalingServer="*uid://dey4k0r64ilkt"
+ServerRunner="*uid://bt00s6syfbrgu"
 Server="*uid://ctdgao6rt4s3c"
 GD_="*uid://bkkcxcqheocke"
 

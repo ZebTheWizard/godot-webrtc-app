@@ -12,19 +12,17 @@ extends Node
 #   - If peer: make answer?
 
 signal connected
+signal error(error:Dictionary)
 signal login_success(player:Dictionary)
-signal login_error(error:Dictionary)
 signal signup_success
-signal signup_error(error:Dictionary)
 signal matches(matches:Array)
 signal match_create_success
-signal match_create_error(error:Dictionary)
 signal match_connected(_match:Dictionary)
 signal match_disconnected(data:Dictionary)
 signal lobby(players:Dictionary)
 signal webrtc_established
 
-var ws : WebSocketMultiplayerPeer = WebSocketMultiplayerPeer.new()
+var ws : WebSocketPeer = WebSocketPeer.new()
 var rtc : WebRTCMultiplayerPeer = WebRTCMultiplayerPeer.new()
 var established: bool = false
 var id = 0
@@ -42,7 +40,7 @@ func _ready() -> void:
 	if CommandLine.options.has('server'):
 		set_process(false)
 	var debug = DotEnv.get_env("APP_DEBUG")
-	server = "ws://127.0.0.1:8001" if debug else "wss://wss.snowbuilds.com"
+	server = "ws://127.0.0.1:8000" if debug else "wss://wss.snowbuilds.com"
 
 func _process(_delta: float) -> void:
 	connect_to_signaling_server()
@@ -53,7 +51,7 @@ func _process(_delta: float) -> void:
 		if packet != null:
 			var msgString = packet.get_string_from_utf8()
 			var msg = JSON.parse_string(msgString)
-			
+
 			if msg is not Dictionary:
 				return
 				
@@ -71,18 +69,14 @@ func _process(_delta: float) -> void:
 						'password': CommandLine.options.get('password')
 					})
 				connected.emit()
+			elif msg.type == Enum.message.ERROR:
+				error.emit(msg.data)
 			elif msg.type == Enum.message.LOGIN_SUCCESS:
 				login_success.emit(msg.data)
-			elif msg.type == Enum.message.LOGIN_ERROR:
-				login_error.emit(msg.data)
 			elif msg.type == Enum.message.SIGNUP_SUCCESS:
 				signup_success.emit()
-			elif msg.type == Enum.message.SIGNUP_ERROR:
-				signup_error.emit(msg.data)
 			elif msg.type == Enum.message.MATCH_CREATE_SUCCESS:
 				match_create_success.emit()
-			elif msg.type == Enum.message.MATCH_CREATE_ERROR:
-				match_create_error.emit(msg.data)
 			elif msg.type == Enum.message.MATCH_LIST:
 				matches.emit(msg.data)
 			elif msg.type == Enum.message.MATCH_CONNECTED:
@@ -160,8 +154,9 @@ func signup(data:Dictionary):
 	})
 
 func connect_to_signaling_server():
-	if ws.get_connection_status() == MultiplayerPeer.ConnectionStatus.CONNECTION_DISCONNECTED:
-		ws.create_client(server)
+	if ws.get_ready_state() == WebSocketPeer.State.STATE_CLOSED:
+		established = false
+		ws.connect_to_url(server)
 
 func establish_multiplayer_networking(client_id):
 	rtc.create_mesh(client_id)
@@ -269,11 +264,6 @@ func _are_all_peers_connected() -> bool:
 			
 	return true
 
-func send_test_message():
-	send_ws_message({
-		"type": Enum.message.TEST,
-		"data": "test client to server"
-	})
 	
 func send_ws_message(message: Dictionary):
 	message.set('id', id)

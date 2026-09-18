@@ -1,7 +1,5 @@
-class_name Enum extends Node
-
-enum message {
-	ID,
+export enum message {
+  ID,
 	ERROR,
 	LOGIN,
 	LOGIN_SUCCESS,
@@ -19,4 +17,17 @@ enum message {
 	WEBRTC_OFFER,
 	WEBRTC_ANSWER,
 	WEBRTC_EXCHANGE
+}
+
+export enum match_status {
+  MATCHING = 'matching',
+  IN_PROGRESS = 'playing'
+}
+
+export enum match_type {
+  FFA = "free-for-all"
+}
+
+export enum map {
+  DEFAULT = "uid://ynqly5lsqmk4"
 }

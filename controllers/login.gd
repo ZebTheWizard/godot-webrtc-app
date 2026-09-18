@@ -11,7 +11,7 @@ func _mount(_data:Dictionary):
 	_sign_up.pressed.connect(_on_sign_up_pressed)
 	Client.connected.connect(_on_connected)
 	Client.login_success.connect(_on_login_success)
-	Client.login_error.connect(_on_login_error)
+	Client.error.connect(_on_login_error)
 	
 func _on_submit_pressed():
 	Client.login({

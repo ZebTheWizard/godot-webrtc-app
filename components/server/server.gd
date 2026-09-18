@@ -1,7 +1,7 @@
 extends CanvasLayer
 
 @onready var _start_signaling_server:Button = $"%Start Signaling Server"
-var is_debug
+var is_debug: bool
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -9,6 +9,8 @@ func _ready() -> void:
 	$"%UserPanel".hide()
 	$"%Version".text = get_git_version()
 	$"%Server".text = Client.server
+	if CommandLine.options.has('is-server'):
+		_on_start_signaling_server_pressed()
 	_start_signaling_server.pressed.connect(_on_start_signaling_server_pressed)
 	_start_signaling_server.visible = is_debug
 	Client.login_success.connect(_on_login_success)
@@ -19,9 +21,9 @@ func _process(_delta: float) -> void:
 		_start_signaling_server.visible = not Client.established
 
 func _on_start_signaling_server_pressed():
-	var started = SignalingServer.start_server()
-	if started:
-		_start_signaling_server.hide()
+	if is_debug:
+		ServerRunner.start()
+	
 
 func _on_login_success(player: Dictionary):
 	$"%UserPanel".show()

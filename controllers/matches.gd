@@ -23,7 +23,7 @@ func _mount(_data:Dictionary):
 	Client.connected.connect(_on_connected)
 	Client.matches.connect(_on_matches_changed)
 	Client.match_create_success.connect(_on_create_success)
-	Client.match_create_error.connect(_on_create_error)
+	Client.error.connect(_on_create_error)
 	Client.match_connected.connect(_on_match_connected)
 	Client.get_matches()
 
@@ -48,7 +48,7 @@ func _on_connected():
 func _on_create_pressed():
 	Client.create_match({
 		'name': _name.text,
-		'map': _map.text if not _map.text.is_empty() else "DEFAULT",
+		'map': _map.text,
 		'password': _password.text,
 	})
 
